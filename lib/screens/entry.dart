@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Entry extends StatefulWidget {
-  const new({super.key});
+  const Entry({super.key});
 
   @override
   State<Entry> createState() => _EntryState();

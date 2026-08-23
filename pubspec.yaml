@@ -1,5 +1,5 @@
 name: chronologe_poc
-description: "A new Flutter project."
+description: "PoC for Chronologe: Let your day write itself."
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_fonts: ^8.2.1
+  table_calendar: ^3.2.1
 
 dev_dependencies:
   flutter_test:

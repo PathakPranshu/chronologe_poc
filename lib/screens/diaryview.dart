@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DiaryView extends StatefulWidget {
-  const new({super.key});
+  const DiaryView({super.key});
 
   @override
   State<DiaryView> createState() => _DiaryViewState();

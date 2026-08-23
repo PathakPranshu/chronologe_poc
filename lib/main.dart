@@ -1,3 +1,5 @@
+import 'package:chronologe_poc/screens/timeline.dart';
+import 'package:chronologe_poc/theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -5,12 +7,15 @@ void main() {
 }
 
 class MainApp extends StatelessWidget {
+  
   const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(body: Center(child: Text('Hello World!'))),
+    return MaterialApp(
+      theme: CustomTheme.lightThemeData(context),
+      darkTheme: CustomTheme.darkThemeData(context),
+      home: Timeline(),
     );
   }
 }
