@@ -16,29 +16,23 @@ class _TimelineState extends State<Timeline> {
   }
   Future<void> testDatabase() async {
     String date = '2026-08-24';
-    // 1. Insert or Update text
+
+    // 1. Insert or Update title
+    await DBHelper.changeTitle(date, 'Sample Title');
+
+    // Read after inserting title
+    Map? entry = DBHelper.readEntry(date);
+    print('AFTER TITLE:');
+    print(entry);
+
+    // 2. Insert or Update text
     await DBHelper.changeText(date, 'Today was a good day!');
 
     // Read after inserting text
-    Map? entry = DBHelper.readEntry(date);
+    entry = DBHelper.readEntry(date);
     print('AFTER TEXT:');
     print(entry);
 
-    // 2. Insert or Update mood
-    await DBHelper.changeMood(date, 'Happy');
-
-    // Read after inserting mood
-    entry = DBHelper.readEntry(date);
-    print('AFTER MOOD:');
-    print(entry);
-
-    // 3. Insert or Update weather
-    await DBHelper.changeWeather(date, 'Sunny', '25°C');
-
-    // Read after inserting weather
-    entry = DBHelper.readEntry(date);
-    print('AFTER WEATHER:');
-    print(entry);
 
     // 4. Add image 1
     await DBHelper.addImage(date,'images/photo1.jpg');

@@ -13,13 +13,9 @@ class DBHelper {
   static Map getEntry(String date) {
     return diaryBox.get(date) ?? {
       'date': date,
+      'title': '',
       'text_data': '',
-      'media_loc': [],
-      'mood': '',
-      'weather': {
-        'category': '',
-        'temp': '',
-      }
+      'images_loc': [],
     };
   }
 
@@ -33,39 +29,26 @@ class DBHelper {
     await diaryBox.put(date, entry);
   }
 
-  // Change mood
-  // Usage : await DBHelper.changeMood('2026-08-24', 'Happy');
-  static Future<void> changeMood(String date, String mood) async {
+  // Change title
+  // Usage : await DBHelper.changeTitle('2026-08-24', 'Happy');
+  static Future<void> changeTitle(String date, String title) async {
     Map entry = getEntry(date);
 
-    entry['mood'] = mood;
+    entry['title'] = title;
 
     await diaryBox.put(date, entry);
   }
-
-  // Change weather
-  // Usage : await DBHelper.changeWeather('2026-08-24', 'Sunny', '25°C');
-  static Future<void> changeWeather(String date, String category, String temp) async {
-  Map entry = getEntry(date);
-
-  entry['weather'] = {
-    'category': category,
-    'temp': temp,
-  };
-
-  await diaryBox.put(date, entry);
-}
 
   // Add image
   // Usage : await addImage('2026-08-24', 'example/image.jpg');
   static Future<void> addImage(String date, String imageUrl) async {
     Map entry = getEntry(date);
 
-    List mediaList = entry['media_loc'];
+    List imagesList = entry['images_loc'];
 
-    mediaList.add(imageUrl);
+    imagesList.add(imageUrl);
 
-    entry['media_loc'] = mediaList;
+    entry['images_loc'] = imagesList;
 
     await diaryBox.put(date, entry);
   }
@@ -79,16 +62,16 @@ class DBHelper {
       return;
     }
 
-    List mediaList = entry['media_loc'];
+    List imagesList = entry['images_loc'];
 
-    for (int i = 0; i < mediaList.length; i++) {
-      if (mediaList[i] == imageUrl) {
-        mediaList.removeAt(i);
+    for (int i = 0; i < imagesList.length; i++) {
+      if (imagesList[i] == imageUrl) {
+        imagesList.removeAt(i);
         break;
       }
     }
 
-    entry['media_loc'] = mediaList;
+    entry['images_loc'] = imagesList;
 
     await diaryBox.put(date, entry);
   }
