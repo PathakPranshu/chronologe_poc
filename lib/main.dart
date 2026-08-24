@@ -1,8 +1,14 @@
+import 'package:chronologe_poc/dbhelper.dart';
 import 'package:chronologe_poc/screens/timeline.dart';
 import 'package:chronologe_poc/theme.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+Future<void> main() async {
+  // Make Flutter ready
+  WidgetsFlutterBinding.ensureInitialized();
+  // Make database ready
+  await DBHelper.init();
+  // Start app
   runApp(const MainApp());
 }
 
