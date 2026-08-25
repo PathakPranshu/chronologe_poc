@@ -10,6 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ^8.2.1
+  image_picker: ^1.2.3
+  image_picker_android: ^0.8.13+19
+  intl: ^0.20.3
+  material_color_utilities: ^0.13.0
   table_calendar: ^3.2.1
 
 dev_dependencies:
@@ -19,3 +23,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Fraunces
+      fonts:
+        - asset: assets/fonts/fraunces_variable.ttf
+    - family: RobotoFlex
+      fonts:
+        - asset: assets/fonts/roboto_flex_variable.ttf
