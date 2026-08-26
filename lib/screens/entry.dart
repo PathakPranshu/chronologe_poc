@@ -349,26 +349,6 @@ class _EntryState extends State<Entry> {
 
               const SizedBox(height: 25),
 
-              // Upload image button
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: uploadImage,
-
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: mySecondary,
-                    side: const BorderSide(
-                      color: mySecondary,
-                    ),
-                    padding: const EdgeInsets.all(18),
-                  ),
-                  icon: const Icon(Icons.upload),
-                  label: const Text('Upload Image'),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
               // Generate button
               SizedBox(
                 width: double.infinity,
@@ -380,7 +360,7 @@ class _EntryState extends State<Entry> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: mySecondary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(25),
                   ),
 
                   icon: const Icon(Icons.auto_awesome),
@@ -393,6 +373,16 @@ class _EntryState extends State<Entry> {
           ),
         ),
       ),
+      
+      floatingActionButton: FloatingActionButton.extended(
+      onPressed: uploadImage,
+      backgroundColor: mySecondary,
+      foregroundColor: Colors.white,
+      icon: const Icon(Icons.add),
+      label: const Text('Add Photos'),
+      ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
