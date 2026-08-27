@@ -12,7 +12,7 @@ class CustomTheme {
       useMaterial3: true,
       textTheme: buildTextTheme(),
       colorScheme: ColorScheme(
-        brightness: Brightness.light,
+        brightness: Brightness.dark,
         primary: Color(0xffa2391a),
         surfaceTint: Color(0xffa53b1c),
         onPrimary: Color(0xffffffff),
@@ -162,4 +162,30 @@ class CustomTheme {
           ],
     );
   }
+
+  // Mood colours
+  static Color getMoodColor(String mood) {
+    if (mood == 'Happy') {
+      return const Color.fromARGB(255, 255, 203, 70);
+    }
+
+    if (mood == 'Calm') {
+      return const Color.fromARGB(255, 151, 222, 255);
+    }
+
+    if (mood == 'Tired') {
+      return const Color.fromARGB(255, 153, 176, 186);
+    }
+
+    if (mood == 'Excited') {
+      return const Color.fromARGB(255, 245, 148, 184);
+    }
+
+    if (mood == 'Reflective') {
+      return const Color.fromARGB(255, 188, 156, 247);
+    }
+
+    return Colors.white;
+  }
+
 }

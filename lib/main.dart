@@ -1,15 +1,19 @@
+import 'dart:async';
+
+import 'package:chronologe_poc/dbhelper.dart';
+import 'package:chronologe_poc/samples.dart';
 import 'package:chronologe_poc/screens/timeline.dart';
 import 'package:chronologe_poc/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker_android/image_picker_android.dart';
-import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
-void main() {
-  final ImagePickerPlatform imagePickerImplementation =
-      ImagePickerPlatform.instance;
-  if (imagePickerImplementation is ImagePickerAndroid) {
-    imagePickerImplementation.useAndroidPhotoPicker = true;
-  }
+Future<void> main() async {
+  // Make Flutter ready
+  WidgetsFlutterBinding.ensureInitialized();
+  // Make database ready
+  await DBHelper.init();
+
+  await SampleEntry.populateDatabase();
+
   runApp(const MainApp());
 }
 
