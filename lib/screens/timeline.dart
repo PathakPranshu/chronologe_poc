@@ -115,25 +115,28 @@ class _TimelineState extends State<Timeline> {
                         ),
                       ),
 
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Show the day number
-                          Text(
-                            DateTime.parse(entry['date']).day.toString(),
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          // Show weather emoji based on the weather category
-                          Text(
-                            CustomTheme.getWeatherEmoji(entry['weather']['category']),
-                            style: const TextStyle(
-                              fontSize: 22,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Show the day number
+                            Text(
+                              DateTime.parse(entry['date']).day.toString(),
+                              style: Theme.of(context).textTheme.titleLarge,
                             ),
-                          ),
-                        ]
+
+                            const SizedBox(height: 8),
+
+                            // Show weather emoji based on the weather category
+                            Text(
+                              CustomTheme.getWeatherEmoji(entry['weather']['category']),
+                              style: const TextStyle(
+                                fontSize: 22,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   )

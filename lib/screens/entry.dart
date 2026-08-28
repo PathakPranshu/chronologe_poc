@@ -136,6 +136,10 @@ class _EntryState extends State<Entry> {
   @override
   Widget build(BuildContext context) {
     Color moodColor = CustomTheme.getMoodColor(selectedMood);
+    Color backgroundColor = Color.alphaBlend(
+      moodColor.withValues(alpha: 0.25),
+      Theme.of(context).colorScheme.surface,
+    );
 
     List images = diaryEntry?['images_data'] ?? [];
 
@@ -144,7 +148,7 @@ class _EntryState extends State<Entry> {
     );
 
     return Scaffold(
-      backgroundColor: moodColor.withValues(alpha: 0.25),
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -360,7 +364,7 @@ class _EntryState extends State<Entry> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: mySecondary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.all(25),
+                    padding: const EdgeInsets.all(20),
                   ),
 
                   icon: const Icon(Icons.auto_awesome),
