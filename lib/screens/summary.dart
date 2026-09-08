@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:chronologe_poc/api_key.dart';
 import 'package:chronologe_poc/dbhelper.dart';
 import 'package:flutter/material.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:intl/intl.dart';
 
 class Summary extends StatefulWidget {
@@ -13,6 +17,18 @@ class _SummaryState extends State<Summary> {
   List<Map<String, dynamic>> weeklyEntries = [];
   bool isLoading = true;
 
+  // Added for Gemini summary generation.
+  bool isGenerating = false;
+  String? generatedTitle;
+  String? generatedSummary;
+  String? overallMood;
+  String? errorMessage;
+
+  // Temporary test week:
+  // Sunday, 23 August 2026 to Saturday, 29 August 2026
+  final DateTime startDate = DateTime(2026, 8, 23);
+  final DateTime endDate = DateTime(2026, 8, 29);
+
   @override
   void initState() {
     super.initState();
@@ -23,16 +39,10 @@ class _SummaryState extends State<Summary> {
     final List<Map<String, dynamic>> allEntries =
         DBHelper.getAllEntriesNewestFirst();
 
-    final DateTime today = DateTime.now();
-    final DateTime sevenDaysAgo = today.subtract(
-      const Duration(days: 6),
-    );
-
     final List<Map<String, dynamic>> entries = allEntries.where((entry) {
-      final String dateString = entry['date'] ?? '';
+      final String dateString = (entry['date'] ?? '').toString();
 
-      final DateTime? entryDate =
-          DateTime.tryParse(dateString);
+      final DateTime? entryDate = DateTime.tryParse(dateString);
 
       if (entryDate == null) {
         return false;
@@ -45,20 +55,20 @@ class _SummaryState extends State<Summary> {
       );
 
       final DateTime normalizedStartDate = DateTime(
-        sevenDaysAgo.year,
-        sevenDaysAgo.month,
-        sevenDaysAgo.day,
+        startDate.year,
+        startDate.month,
+        startDate.day,
       );
 
-      final DateTime normalizedToday = DateTime(
-        today.year,
-        today.month,
-        today.day,
+      final DateTime normalizedEndDate = DateTime(
+        endDate.year,
+        endDate.month,
+        endDate.day,
       );
 
       final bool isWithinWeek =
           !normalizedEntryDate.isBefore(normalizedStartDate) &&
-          !normalizedEntryDate.isAfter(normalizedToday);
+          !normalizedEntryDate.isAfter(normalizedEndDate);
 
       final String text =
           (entry['text_data'] ?? '').toString().trim();
@@ -79,7 +89,7 @@ class _SummaryState extends State<Summary> {
 
     return weeklyEntries.map((entry) {
       final DateTime date =
-          DateTime.parse(entry['date']);
+          DateTime.parse(entry['date'].toString());
 
       final String formattedDate =
           DateFormat('MMM d, yyyy').format(date);
@@ -90,17 +100,130 @@ class _SummaryState extends State<Summary> {
       final String text =
           (entry['text_data'] ?? '').toString().trim();
 
+      final String mood =
+          (entry['mood'] ?? '').toString().trim();
+
       return '''
 Date: $formattedDate
 Title: $title
+Mood: $mood
 Entry: $text
 ''';
     }).join('\n');
   }
 
+  Future<void> generateSummary(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    final String weeklyText = _buildWeeklyText();
+
+    if (weeklyText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'No diary entries found for this week.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      isGenerating = true;
+      generatedTitle = null;
+      generatedSummary = null;
+      overallMood = null;
+      errorMessage = null;
+    });
+
+    try {
+      final GenerativeModel model = GenerativeModel(
+        model: 'gemini-3.6-flash',
+        apiKey: geminiApiKey,
+      );
+
+      final String formattedStartDate =
+          DateFormat('MMM d, yyyy').format(startDate);
+
+      final String formattedEndDate =
+          DateFormat('MMM d, yyyy').format(endDate);
+
+      final String prompt = '''
+You are an AI assistant for a private digital diary application.
+
+Your task is to create a thoughtful weekly summary using ONLY the diary entries provided below.
+
+Week:
+$formattedStartDate to $formattedEndDate
+
+Diary Entries:
+$weeklyText
+
+Return ONLY valid JSON.
+
+Use exactly this format:
+
+{
+  "title": "A short meaningful title for the week",
+  "summary": "A concise and thoughtful summary of the person's week. Include important activities, experiences, patterns and emotions. Do not invent information that is not present in the diary entries.",
+  "overallMood": "Happy, Calm, Tired, Excited, Reflective or Mixed"
+}
+
+Do not use markdown.
+Do not add any text before or after the JSON.
+''';
+
+      final GenerateContentResponse response =
+          await model.generateContent([
+        Content.text(prompt),
+      ]);
+
+      final String responseText =
+          response.text?.trim() ?? '';
+
+      if (responseText.isEmpty) {
+        throw Exception('Gemini returned an empty response.');
+      }
+
+      final Map<String, dynamic> result =
+          jsonDecode(responseText);
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        generatedTitle =
+            (result['title'] ?? '').toString();
+
+        generatedSummary =
+            (result['summary'] ?? '').toString();
+
+        overallMood =
+            (result['overallMood'] ?? '').toString();
+
+        isGenerating = false;
+      });
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        isGenerating = false;
+        errorMessage = e.toString();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final String weeklyText = _buildWeeklyText();
+    final String formattedStartDate =
+        DateFormat('MMM d').format(startDate);
+
+    final String formattedEndDate =
+        DateFormat('MMM d, yyyy').format(endDate);
 
     return Scaffold(
       appBar: AppBar(
@@ -108,17 +231,17 @@ Entry: $text
           'Weekly Summary',
         ),
       ),
-
       body: isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
           : weeklyEntries.isEmpty
-              ? const Center(
+              ? Center(
                   child: Padding(
-                    padding: EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24),
                     child: Text(
-                      'Add diary entries during the week to generate your weekly summary.',
+                      'No diary entries found between '
+                      '$formattedStartDate and $formattedEndDate.',
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -130,10 +253,19 @@ Entry: $text
                         CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Your Last 7 Days',
+                        'Weekly Entries',
                         style: Theme.of(context)
                             .textTheme
                             .headlineSmall,
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        '$formattedStartDate – $formattedEndDate',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium,
                       ),
 
                       const SizedBox(height: 8),
@@ -148,78 +280,203 @@ Entry: $text
                       const SizedBox(height: 24),
 
                       Expanded(
-                        child: ListView.builder(
-                          itemCount:
-                              weeklyEntries.length,
-                          itemBuilder:
-                              (context, index) {
-                            final entry =
-                                weeklyEntries[index];
+                        child: ListView(
+                          children: [
+                            ...weeklyEntries.map((entry) {
+                              final Map<String, dynamic> entryData =
+                                  entry;
 
-                            final DateTime date =
-                                DateTime.parse(
-                              entry['date'],
-                            );
+                              final DateTime date =
+                                  DateTime.parse(
+                                entryData['date'].toString(),
+                              );
 
-                            final String title =
-                                (entry['title'] ?? '')
-                                    .toString();
+                              final String title =
+                                  (entryData['title'] ?? '')
+                                      .toString();
 
-                            final String text =
-                                (entry['text_data'] ?? '')
-                                    .toString();
+                              final String text =
+                                  (entryData['text_data'] ?? '')
+                                      .toString();
 
-                            return Card(
-                              margin:
-                                  const EdgeInsets.only(
-                                bottom: 12,
-                              ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.all(
-                                  16,
+                              final String mood =
+                                  (entryData['mood'] ?? '')
+                                      .toString();
+
+                              return Card(
+                                margin:
+                                    const EdgeInsets.only(
+                                  bottom: 12,
                                 ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment
-                                          .start,
-                                  children: [
-                                    Text(
-                                      DateFormat(
-                                        'MMM d, yyyy',
-                                      ).format(date),
-                                      style: Theme.of(
-                                        context,
-                                      )
-                                          .textTheme
-                                          .labelLarge,
-                                    ),
-
-                                    const SizedBox(
-                                      height: 8,
-                                    ),
-
-                                    if (title.trim().isNotEmpty)
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.all(
+                                    16,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment
+                                            .start,
+                                    children: [
                                       Text(
-                                        title,
+                                        DateFormat(
+                                          'MMM d, yyyy',
+                                        ).format(date),
                                         style: Theme.of(
                                           context,
                                         )
                                             .textTheme
-                                            .titleMedium,
+                                            .labelLarge,
                                       ),
 
-                                    if (title.trim().isNotEmpty)
-                                      const SizedBox(
-                                        height: 8,
-                                      ),
+                                      const SizedBox(height: 8),
 
-                                    Text(text),
-                                  ],
+                                      if (title
+                                          .trim()
+                                          .isNotEmpty)
+                                        Text(
+                                          title,
+                                          style: Theme.of(
+                                            context,
+                                          )
+                                              .textTheme
+                                              .titleMedium,
+                                        ),
+
+                                      if (title
+                                          .trim()
+                                          .isNotEmpty)
+                                        const SizedBox(
+                                          height: 8,
+                                        ),
+
+                                      if (mood
+                                          .trim()
+                                          .isNotEmpty)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(
+                                            bottom: 8,
+                                          ),
+                                          child: Text(
+                                            'Mood: $mood',
+                                          ),
+                                        ),
+
+                                      Text(text),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+
+                            // Gemini loading indicator.
+                            if (isGenerating)
+                              const Padding(
+                                padding: EdgeInsets.all(24),
+                                child: Center(
+                                  child: Column(
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(height: 12),
+                                      Text(
+                                        'Generating your weekly summary...',
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            );
-                          },
+
+                            // Show Gemini errors if something goes wrong.
+                            if (errorMessage != null)
+                              Card(
+                                margin:
+                                    const EdgeInsets.only(
+                                  top: 12,
+                                  bottom: 12,
+                                ),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.all(
+                                    16,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment
+                                            .start,
+                                    children: [
+                                      Text(
+                                        'Summary generation failed',
+                                        style:
+                                            Theme.of(context)
+                                                .textTheme
+                                                .titleMedium,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(errorMessage!),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                            // Show the generated Gemini summary.
+                            if (generatedSummary != null)
+                              Card(
+                                margin:
+                                    const EdgeInsets.only(
+                                  top: 12,
+                                  bottom: 24,
+                                ),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.all(
+                                    20,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment
+                                            .start,
+                                    children: [
+                                      Text(
+                                        generatedTitle ??
+                                            'Your Week',
+                                        style:
+                                            Theme.of(context)
+                                                .textTheme
+                                                .headlineSmall,
+                                      ),
+
+                                      const SizedBox(height: 12),
+
+                                      if (overallMood !=
+                                              null &&
+                                          overallMood!
+                                              .trim()
+                                              .isNotEmpty)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(
+                                            bottom: 12,
+                                          ),
+                                          child: Chip(
+                                            label: Text(
+                                              'Overall Mood: $overallMood',
+                                            ),
+                                          ),
+                                        ),
+
+                                      Text(
+                                        generatedSummary!,
+                                        style:
+                                            Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
 
@@ -228,26 +485,21 @@ Entry: $text
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton.icon(
-                          onPressed: () {
-                            debugPrint(
-                              weeklyText,
-                            );
-
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Weekly entries are ready for AI summary generation.',
-                                ),
-                              ),
-                            );
-                          },
+                          onPressed: isGenerating
+                              ? null
+                              : () {
+                                  generateSummary(
+                                    startDate,
+                                    endDate,
+                                  );
+                                },
                           icon: const Icon(
                             Icons.auto_awesome_rounded,
                           ),
-                          label: const Text(
-                            'Generate Weekly Summary',
+                          label: Text(
+                            isGenerating
+                                ? 'Generating...'
+                                : 'Generate Weekly Summary',
                           ),
                         ),
                       ),
