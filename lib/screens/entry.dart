@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:chronologe_poc/dbhelper.dart';
+import 'package:chronologe_poc/providers.dart';
 import 'package:chronologe_poc/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -12,17 +14,17 @@ import 'package:path_provider/path_provider.dart';
 
 enum SaveStatus { saved, typing, saving }
 
-class Entry extends StatefulWidget {
+class Entry extends ConsumerStatefulWidget {
   final String? dateKey;
   const Entry({super.key, this.dateKey});
 
   @override
-  State<Entry> createState() => _EntryState();
+  ConsumerState<Entry> createState() => _EntryState();
 }
 
-class _EntryState extends State<Entry> {
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _contentController = TextEditingController();
+class _EntryState extends ConsumerState<Entry> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
 
   Timer? _debounceTimer;
   SaveStatus _status = SaveStatus.saved;
@@ -108,7 +110,10 @@ class _EntryState extends State<Entry> {
 
   Future<void> _pickImages() async {
     try {
-      List<XFile> images = await _picker.pickMultiImage();
+      List<XFile> images = await _picker.pickMultiImage(
+        maxWidth: 1920,
+        imageQuality: 90,
+      );
       if (images.isEmpty) return;
 
       final Directory targetDir = await _getTargetDirectory();
@@ -119,6 +124,7 @@ class _EntryState extends State<Entry> {
 
       List<String> newFilenames = [];
       List<String> newResolvedPaths = [];
+      int counter = 1;
 
       for (var image in images) {
         final File tempFile = File(image.path);
@@ -126,18 +132,37 @@ class _EntryState extends State<Entry> {
         final String timestamp = DateTime.now().millisecondsSinceEpoch
             .toString();
         final String extension = p.extension(image.path);
-        final String uniqueName = '$timestamp$extension';
+        final String uniqueName = '${timestamp}_$counter$extension';
+        counter++;
 
         final String permanentPath = p.join(targetDir.path, uniqueName);
+        bool isCopied = false;
 
-        await tempFile.copy(permanentPath);
+        try {
+          await tempFile.copy(permanentPath);
+          isCopied = true;
 
-        await DBHelper.addImage(_dbkey, uniqueName);
+          await DBHelper.addImage(_dbkey, uniqueName);
 
-        newFilenames.add(uniqueName);
-        newResolvedPaths.add(permanentPath);
+          // CLEANING: Delete the image from temporary storage if saved to the DB
+          if (await tempFile.exists()) {
+            await tempFile.delete();
+          }
+
+          newFilenames.add(uniqueName);
+          newResolvedPaths.add(permanentPath);
+        } on Exception catch (imageError) {
+          debugPrint('Failed to process image $uniqueName: $imageError');
+
+          // ROLLBACK: Deleting the image from permanent storage if not saved to the DB
+          if (isCopied) {
+            final File orphanFile = File(permanentPath);
+            if (await orphanFile.exists()) {
+              await orphanFile.delete();
+            }
+          }
+        }
       }
-
       setState(() {
         storedFilenames.addAll(newFilenames);
         resolvedImagePaths.addAll(newResolvedPaths);
@@ -203,6 +228,7 @@ class _EntryState extends State<Entry> {
     _autoSave();
     _titleController.dispose();
     _contentController.dispose();
+
     super.dispose();
   }
 
@@ -247,7 +273,9 @@ class _EntryState extends State<Entry> {
 
   @override
   Widget build(BuildContext context) {
-    Color moodColor = CustomTheme.getMoodColor(selectedMood);
+    final theme = Theme.of(context);
+    Color moodColor = CustomTheme.getMoodColor(selectedMood, context);
+    CustomFonts customFonts = ref.watch(customFontsProvider);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -293,7 +321,7 @@ class _EntryState extends State<Entry> {
                     TextField(
                       controller: _titleController,
                       onChanged: (value) => _onTextChanged(),
-                      style: Theme.of(context).textTheme.displayMedium,
+                      style: customFonts.title != null ? theme.textTheme.displayMedium!.merge(customFonts.title): theme.textTheme.displayMedium,
                       maxLines: null,
                       decoration: InputDecoration(
                         hintText: "Add a title",
@@ -306,7 +334,7 @@ class _EntryState extends State<Entry> {
                       children: [
                         Text(
                           "Select your mood",
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: theme.textTheme.titleMedium,
                         ),
                         Container(
                           height: 38,
@@ -317,13 +345,11 @@ class _EntryState extends State<Entry> {
                           ),
 
                           child: DropdownButton<String>(
-                            iconEnabledColor: Theme.of(context)
-                                .colorScheme
-                                .onSurface
+                            iconEnabledColor: theme.colorScheme.onPrimary
                                 .withAlpha(100),
                             value: selectedMood,
                             underline: const SizedBox(),
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: customFonts.body != null ? theme.textTheme.titleMedium!.merge(customFonts.body) : theme.textTheme.titleMedium,
 
                             items: const [
                               DropdownMenuItem(
@@ -367,13 +393,13 @@ class _EntryState extends State<Entry> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: _contentController,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                      style: customFonts.body != null ? theme.textTheme.titleMedium!.merge(customFonts.body) : theme.textTheme.titleMedium,
                       onChanged: (value) => _onTextChanged(),
                       maxLines: null,
                       decoration: InputDecoration(
                         hintText: "Add your thoughts for the day... \n\nThis entry will be auto saved.",
                         hintStyle: CustomTheme.toRobotoItalic(
-                          Theme.of(context).textTheme.bodyLarge,
+                          theme.textTheme.bodyLarge,
                         ),
                         border: InputBorder.none,
                       ),
@@ -399,15 +425,14 @@ class _EntryState extends State<Entry> {
                                 Image.file(
                                   File(absoluteImagePath),
                                   fit: BoxFit.cover,
+                                  cacheWidth: 300,
                                 ),
                                 // Quick Delete button on corner overlay
                                 Positioned(
                                   top: 4,
                                   right: 4,
                                   child: CircleAvatar(
-                                    backgroundColor: Theme.of(context)
-                                        .colorScheme
-                                        .primary
+                                    backgroundColor: theme.colorScheme.primary
                                         .withAlpha(240),
                                     radius: 16,
                                     child: IconButton(
@@ -415,7 +440,7 @@ class _EntryState extends State<Entry> {
                                       icon: Icon(
                                         Icons.close,
                                         size: 16,
-                                        color: Theme.of(context)
+                                        color: theme
                                             .colorScheme
                                             .onPrimaryContainer,
                                       ),
@@ -450,6 +475,7 @@ class _EntryState extends State<Entry> {
                       ),
                       const SizedBox(height: 16),
                     ],
+                    const SizedBox(height: 84),
                   ],
                 ),
               ),
@@ -458,8 +484,8 @@ class _EntryState extends State<Entry> {
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _pickImages,
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          foregroundColor: Theme.of(context).colorScheme.onSecondary,
+          backgroundColor: theme.colorScheme.secondary,
+          foregroundColor: theme.colorScheme.onSecondary,
           enableFeedback: true,
           elevation: 1.0,
           icon: Icon(Icons.add),

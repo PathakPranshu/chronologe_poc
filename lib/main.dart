@@ -1,10 +1,14 @@
 import 'dart:async';
 
 import 'package:chronologe_poc/dbhelper.dart';
+import 'package:chronologe_poc/providers.dart';
 import 'package:chronologe_poc/samples.dart';
+import 'package:chronologe_poc/screens/preferences.dart';
 import 'package:chronologe_poc/screens/timeline.dart';
 import 'package:chronologe_poc/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   // Make Flutter ready
@@ -14,18 +18,26 @@ Future<void> main() async {
 
   await SampleEntry.populateDatabase();
 
-  runApp(const MainApp());
+  runApp(ProviderScope(child: const MainApp()));
+
+  _prefetchFonts();
 }
 
-class MainApp extends StatelessWidget {
+void _prefetchFonts() {
+  GoogleFonts.geist();
+  GoogleFonts.literata();
+  GoogleFonts.comicNeue();
+}
+
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       theme: CustomTheme.lightThemeData(context),
       darkTheme: CustomTheme.darkThemeData(context),
-
+      themeMode: ref.watch(themeProvider),
       home: Timeline(),
     );
   }

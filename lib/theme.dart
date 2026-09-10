@@ -12,7 +12,7 @@ class CustomTheme {
       useMaterial3: true,
       textTheme: buildTextTheme(),
       colorScheme: ColorScheme(
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
         primary: Color(0xffa2391a),
         surfaceTint: Color(0xffa53b1c),
         onPrimary: Color(0xffffffff),
@@ -67,52 +67,52 @@ class CustomTheme {
       useMaterial3: true,
       textTheme: buildTextTheme(),
       colorScheme: ColorScheme(
-        brightness: Brightness.light,
-        primary: Color(0xff6a1700),
-        surfaceTint: Color(0xffa53b1c),
-        onPrimary: Color(0xffffffff),
-        primaryContainer: Color(0xffb94929),
-        onPrimaryContainer: Color(0xffffffff),
-        secondary: Color(0xff2e3b00),
-        onSecondary: Color(0xffffffff),
-        secondaryContainer: Color(0xff61751d),
-        onSecondaryContainer: Color(0xffffffff),
-        tertiary: Color(0xff423500),
-        onTertiary: Color(0xffffffff),
-        tertiaryContainer: Color(0xff826b00),
-        onTertiaryContainer: Color(0xffffffff),
-        error: Color(0xff740006),
-        onError: Color(0xffffffff),
-        errorContainer: Color(0xffcf2c27),
-        onErrorContainer: Color(0xffffffff),
-        surface: Color(0xfffff8f6),
-        onSurface: Color(0xff190f0c),
-        onSurfaceVariant: Color(0xff45312c),
-        outline: Color(0xff644d47),
-        outlineVariant: Color(0xff806761),
+        brightness: Brightness.dark,
+        primary: Color(0xffffb5a0),
+        surfaceTint: Color(0xffffb5a0),
+        onPrimary: Color(0xff601400),
+        primaryContainer: Color(0xffe86b48),
+        onPrimaryContainer: Color(0xff230300),
+        secondary: Color(0xffb9d06f),
+        onSecondary: Color(0xff293500),
+        secondaryContainer: Color(0xff84993f),
+        onSecondaryContainer: Color(0xff151c00),
+        tertiary: Color(0xffe4c453),
+        onTertiary: Color(0xff3b2f00),
+        tertiaryContainer: Color(0xffc7a93a),
+        onTertiaryContainer: Color(0xff4d3e00),
+        error: Color(0xffffb4ab),
+        onError: Color(0xff690005),
+        errorContainer: Color(0xff93000a),
+        onErrorContainer: Color(0xffffdad6),
+        surface: Color(0xff1b110e),
+        onSurface: Color(0xfff4ded8),
+        onSurfaceVariant: Color(0xffdfc0b8),
+        outline: Color(0xffa68b84),
+        outlineVariant: Color(0xff57423c),
         shadow: Color(0xff000000),
         scrim: Color(0xff000000),
-        inverseSurface: Color(0xff3a2d2a),
-        inversePrimary: Color(0xffffb5a0),
-        primaryFixed: Color(0xffb94929),
-        onPrimaryFixed: Color(0xffffffff),
-        primaryFixedDim: Color(0xff983213),
-        onPrimaryFixedVariant: Color(0xffffffff),
-        secondaryFixed: Color(0xff61751d),
-        onSecondaryFixed: Color(0xffffffff),
-        secondaryFixedDim: Color(0xff495c01),
-        onSecondaryFixedVariant: Color(0xffffffff),
-        tertiaryFixed: Color(0xff826b00),
-        onTertiaryFixed: Color(0xffffffff),
-        tertiaryFixedDim: Color(0xff665300),
-        onTertiaryFixedVariant: Color(0xffffffff),
-        surfaceDim: Color(0xffd7c2bd),
-        surfaceBright: Color(0xfffff8f6),
-        surfaceContainerLowest: Color(0xffffffff),
-        surfaceContainerLow: Color(0xfffff1ed),
-        surfaceContainer: Color(0xfffae3de),
-        surfaceContainerHigh: Color(0xffeed8d3),
-        surfaceContainerHighest: Color(0xffe2cdc8),
+        inverseSurface: Color(0xfff4ded8),
+        inversePrimary: Color(0xffa53b1c),
+        primaryFixed: Color(0xffffdbd1),
+        onPrimaryFixed: Color(0xff3b0900),
+        primaryFixedDim: Color(0xffffb5a0),
+        onPrimaryFixedVariant: Color(0xff852406),
+        secondaryFixed: Color(0xffd4ed87),
+        onSecondaryFixed: Color(0xff171e00),
+        secondaryFixedDim: Color(0xffb9d06f),
+        onSecondaryFixedVariant: Color(0xff3d4d00),
+        tertiaryFixed: Color(0xffffe17a),
+        onTertiaryFixed: Color(0xff231b00),
+        tertiaryFixedDim: Color(0xffe4c453),
+        onTertiaryFixedVariant: Color(0xff554500),
+        surfaceDim: Color(0xff1b110e),
+        surfaceBright: Color(0xff443633),
+        surfaceContainerLowest: Color(0xff160c09),
+        surfaceContainerLow: Color(0xff241916),
+        surfaceContainer: Color(0xff291d1a),
+        surfaceContainerHigh: Color(0xff342724),
+        surfaceContainerHighest: Color(0xff3f322e),
       ),
     );
   }
@@ -122,21 +122,21 @@ class CustomTheme {
   static TextTheme buildTextTheme() {
     return TextTheme(
       displayMedium: TextStyle(
-          fontFamily: "Fraunces",
-          fontWeight: FontWeight(450),
-          fontVariations: [
-            FontVariation.opticalSize(80),
-            FontVariation('SOFT', 24),
-            FontVariation("WONK", 0)
-          ],
-        ),
+        fontFamily: "Fraunces",
+        fontWeight: FontWeight(450),
+        fontVariations: [
+          FontVariation.opticalSize(80),
+          FontVariation('SOFT', 24),
+          FontVariation("WONK", 0),
+        ],
+      ),
       displaySmall: TextStyle(
-          fontFamily: "Fraunces",
-          fontWeight: FontWeight(450),
-          fontVariations: [
-            FontVariation.opticalSize(76), 
-            FontVariation("WONK", 0)
-          ],
+        fontFamily: "Fraunces",
+        fontWeight: FontWeight(450),
+        fontVariations: [
+          FontVariation.opticalSize(76),
+          FontVariation("WONK", 0),
+        ],
       ),
       headlineLarge: GoogleFonts.geist(),
       headlineMedium: GoogleFonts.geist(),
@@ -155,37 +155,34 @@ class CustomTheme {
 
   static TextStyle? toRobotoItalic(TextStyle? inheritedBase) {
     return inheritedBase?.copyWith(
-          fontFamily: "RobotoFlex",
-          fontVariations: [
-            FontVariation("slnt", -8),
-            FontVariation("XTRA", 500),
-          ],
+      fontFamily: "RobotoFlex",
+      fontVariations: [FontVariation("slnt", -8), FontVariation("XTRA", 500)],
     );
   }
 
   // Mood colours
-  static Color getMoodColor(String mood) {
+  static Color getMoodColor(String mood, BuildContext context) {
+    Brightness brightness = Theme.of(context).brightness;
     if (mood == 'Happy') {
-      return const Color.fromARGB(255, 255, 203, 70);
+      return brightness == Brightness.light ? const Color.fromARGB(255, 255, 203, 70) : const Color.fromARGB(255, 198, 112, 0);
     }
 
     if (mood == 'Calm') {
-      return const Color.fromARGB(255, 151, 222, 255);
+      return  brightness == Brightness.light ? const Color.fromARGB(255, 151, 222, 255): const Color.fromARGB(255, 36, 149, 201);
     }
 
     if (mood == 'Tired') {
-      return const Color.fromARGB(255, 153, 176, 186);
+      return  brightness == Brightness.light ? const Color.fromARGB(255, 153, 176, 186): const Color.fromARGB(255, 63, 98, 115);
     }
 
     if (mood == 'Excited') {
-      return const Color.fromARGB(255, 245, 148, 184);
+      return  brightness == Brightness.light ? const Color.fromARGB(255, 245, 148, 184): const Color.fromARGB(255, 165, 50, 90);
     }
 
     if (mood == 'Reflective') {
-      return const Color.fromARGB(255, 188, 156, 247);
+      return  brightness == Brightness.light ? const Color.fromARGB(255, 188, 156, 247): const Color.fromARGB(255, 126, 85, 203);
     }
 
     return Colors.white;
   }
-
 }

@@ -111,7 +111,7 @@ class TimelineCard extends StatelessWidget {
                         width: 32,
                         height: 16,
                         decoration: BoxDecoration(
-                          color: CustomTheme.getMoodColor(mood),
+                          color: CustomTheme.getMoodColor(mood, context),
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -122,6 +122,113 @@ class TimelineCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class ZoomableImage extends StatefulWidget {
+  final String imagePath;
+  final Function(bool) onZoomChanged;
+
+  const ZoomableImage({
+    super.key,
+    required this.imagePath,
+    required this.onZoomChanged,
+  });
+
+  @override
+  State<ZoomableImage> createState() => _ZoomableImageState();
+}
+
+class _ZoomableImageState extends State<ZoomableImage> with SingleTickerProviderStateMixin {
+  late TransformationController _transformationController;
+  late AnimationController _animationController;
+  Animation<Matrix4>? _animation;
+  TapDownDetails? _doubleTapDetails;
+  
+  final double _minScale = 1.0;
+  final double _maxScale = 3.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _transformationController = TransformationController();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    )..addListener(() {
+        _transformationController.value = _animation!.value;
+      });
+
+    _transformationController.addListener(() {
+      final currentScale = _transformationController.value.getMaxScaleOnAxis();
+      final isZoomed = currentScale > _minScale + 0.05; // 0.05 buffer
+      widget.onZoomChanged(isZoomed);
+    });
+  }
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _handleDoubleTapDown(TapDownDetails details) {
+    _doubleTapDetails = details;
+  }
+
+  void _handleDoubleTap() {
+    final position = _doubleTapDetails?.localPosition;
+    if (position == null) return;
+
+    final double currentScale = _transformationController.value.getMaxScaleOnAxis();
+    final Matrix4 endMatrix;
+
+    if (currentScale > _minScale) {
+      // If already zoomed in, zoom out to default
+      endMatrix = Matrix4.identity();
+    } else {
+      // If zoomed out, zoom in exactly where the user tapped
+      final x = -position.dx * (_maxScale - 1);
+      final y = -position.dy * (_maxScale - 1);
+      
+      endMatrix = Matrix4.identity()
+        ..translate(x, y)
+        ..scale(_maxScale);
+    }
+
+    _animateToMatrix(endMatrix);
+  }
+
+  void _animateToMatrix(Matrix4 endMatrix) {
+    _animation = Matrix4Tween(
+      begin: _transformationController.value,
+      end: endMatrix,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward(from: 0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onDoubleTapDown: _handleDoubleTapDown,
+      onDoubleTap: _handleDoubleTap,
+      child: InteractiveViewer(
+        transformationController: _transformationController,
+        maxScale: _maxScale,
+        minScale: _minScale,
+        clipBehavior: Clip.none,
+        child: Center(
+          child: Image.file(
+            File(widget.imagePath),
+            fit: BoxFit.contain,
+          ),
         ),
       ),
     );

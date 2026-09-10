@@ -4,6 +4,7 @@ import 'package:chronologe_poc/dbhelper.dart';
 import 'package:chronologe_poc/screens/diaryview.dart';
 import 'package:chronologe_poc/screens/entry.dart';
 import 'package:chronologe_poc/screens/info.dart';
+import 'package:chronologe_poc/screens/preferences.dart';
 import 'package:chronologe_poc/screens/summary.dart';
 import 'package:chronologe_poc/theme.dart';
 import 'package:chronologe_poc/widgets.dart';
@@ -37,8 +38,7 @@ class _TimelineState extends State<Timeline> {
     final List<Map<String, dynamic>> entries =
         DBHelper.getAllEntriesNewestFirst();
 
-    final Directory appDocDir =
-        await getApplicationDocumentsDirectory();
+    final Directory appDocDir = await getApplicationDocumentsDirectory();
 
     final Map<String, String> imagePathsCache = {};
     final Set<String> datesWithData = {};
@@ -55,10 +55,7 @@ class _TimelineState extends State<Timeline> {
       moods[dateKey] = entry['mood'] ?? '';
 
       final List<String> images =
-          (entry['images_loc'] as List?)
-                  ?.cast<String>()
-                  .toList() ??
-              [];
+          (entry['images_loc'] as List?)?.cast<String>().toList() ?? [];
 
       if (images.isNotEmpty) {
         final String firstImageName = images.first;
@@ -103,21 +100,14 @@ class _TimelineState extends State<Timeline> {
           Theme(
             data: Theme.of(context).copyWith(
               textTheme: Theme.of(context).textTheme.copyWith(
-                headlineMedium:
-                    Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onSurface,
-                        ),
-                titleLarge:
-                    Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onSurface,
-                        ),
+                headlineMedium: Theme.of(context).textTheme.displaySmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                titleLarge: Theme.of(context).textTheme.titleLarge
+                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
             child: SliverAppBar.large(
-              actionsPadding:
-                  const EdgeInsets.fromLTRB(0, 4, 12, 8),
+              actionsPadding: const EdgeInsets.fromLTRB(0, 4, 12, 8),
               leading: null,
               title: const Text('Your Chronologe'),
               actions: [
@@ -126,34 +116,41 @@ class _TimelineState extends State<Timeline> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const Summary(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const Summary()),
                     );
                   },
                   icon: Icon(
                     Icons.auto_awesome_rounded,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    size: 18,
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Preferences',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Preferences()),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.tune,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 18,
                   ),
                 ),
 
                 IconButton(
+                  tooltip: "App Info",
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => Info(),
-                      ),
+                      MaterialPageRoute(builder: (context) => Info()),
                     );
                   },
                   icon: Icon(
                     Icons.info_outline_rounded,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 18,
                   ),
                 ),
@@ -163,67 +160,45 @@ class _TimelineState extends State<Timeline> {
 
           SliverToBoxAdapter(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                mainAxisAlignment:
-                    MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   FilledButton(
                     style: FilledButton.styleFrom(
                       enableFeedback: true,
                       minimumSize: Size.zero,
                       foregroundColor: isCalendarExpanded
-                          ? Theme.of(context)
-                              .colorScheme
-                              .onSecondary
-                          : Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
+                          ? Theme.of(context).colorScheme.onSecondary
+                          : Theme.of(context).colorScheme.onSecondaryContainer,
                       backgroundColor: isCalendarExpanded
-                          ? Theme.of(context)
-                              .colorScheme
-                              .secondary
-                          : Theme.of(context)
-                              .colorScheme
-                              .secondaryContainer,
+                          ? Theme.of(context).colorScheme.secondary
+                          : Theme.of(context).colorScheme.secondaryContainer,
                       iconColor: isCalendarExpanded
-                          ? Theme.of(context)
-                              .colorScheme
-                              .onSecondary
-                          : Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
+                          ? Theme.of(context).colorScheme.onSecondary
+                          : Theme.of(context).colorScheme.onSecondaryContainer,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                           isCalendarExpanded ? 12 : 100,
                         ),
                       ),
-                      padding:
-                          const EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         vertical: 6,
                         horizontal: 12,
                       ),
                     ),
                     onPressed: () {
                       setState(() {
-                        isCalendarExpanded =
-                            !isCalendarExpanded;
+                        isCalendarExpanded = !isCalendarExpanded;
                       });
                     },
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment:
-                          MainAxisAlignment.center,
-                      crossAxisAlignment:
-                          CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.calendar_month,
-                          size: 16.67,
-                        ),
+                        Icon(Icons.calendar_month, size: 16.67),
                         SizedBox(width: 4),
                         Text('Dates'),
                       ],
@@ -233,192 +208,148 @@ class _TimelineState extends State<Timeline> {
                   const SizedBox(height: 12),
 
                   AnimatedSize(
-                    duration:
-                        const Duration(milliseconds: 250),
+                    duration: const Duration(milliseconds: 250),
                     curve: Curves.fastOutSlowIn,
                     alignment: Alignment.topCenter,
                     clipBehavior: Clip.antiAlias,
                     child: isCalendarExpanded
                         ? Container(
-                            padding:
-                                const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: Theme.of(context)
                                   .colorScheme
                                   .surfaceContainerLow,
-                              borderRadius:
-                                  BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
                               children: [
                                 TableCalendar(
                                   focusedDay: _focusedDay,
-                                  firstDay:
-                                      DateTime.utc(2026, 3, 14),
+                                  firstDay: DateTime.utc(2026, 3, 14),
                                   lastDay: DateTime.now(),
-                                  calendarFormat:
-                                      CalendarFormat.month,
+                                  calendarFormat: CalendarFormat.month,
 
-                                  calendarStyle:
-                                      CalendarStyle(
+                                  calendarStyle: CalendarStyle(
                                     markersMaxCount: 1,
-                                    markerMargin:
-                                        const EdgeInsets.fromLTRB(
+                                    markerMargin: const EdgeInsets.fromLTRB(
                                       0,
                                       10,
                                       0,
                                       0,
                                     ),
-                                    todayDecoration:
-                                        BoxDecoration(
+                                    todayDecoration: BoxDecoration(
                                       border: Border.all(
-                                        color:
-                                            Theme.of(context)
-                                                .colorScheme
-                                                .primary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
                                       shape: BoxShape.circle,
                                     ),
-                                    selectedDecoration:
-                                        BoxDecoration(
+                                    selectedDecoration: BoxDecoration(
                                       color: Theme.of(context)
                                           .colorScheme
                                           .primary,
                                       shape: BoxShape.circle,
                                     ),
-                                    todayTextStyle:
-                                        TextStyle(
-                                      color:
-                                          Theme.of(context)
+                                    selectedTextStyle: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(
+                                          color: Theme.of(context)
                                               .colorScheme
-                                              .onSurface,
+                                              .onPrimary,
+                                        ),
+                                    todayTextStyle: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
                                     ),
                                   ),
 
-                                  headerStyle:
-                                      HeaderStyle(
-                                    formatButtonVisible:
-                                        false,
+                                  headerStyle: HeaderStyle(
+                                    formatButtonVisible: false,
                                     titleCentered: true,
-                                    headerPadding:
-                                        const EdgeInsets.fromLTRB(
+                                    headerPadding: const EdgeInsets.fromLTRB(
                                       0,
                                       4,
                                       0,
                                       12,
                                     ),
-                                    leftChevronPadding:
-                                        EdgeInsets.zero,
-                                    rightChevronPadding:
-                                        EdgeInsets.zero,
+                                    leftChevronPadding: EdgeInsets.zero,
+                                    rightChevronPadding: EdgeInsets.zero,
                                     leftChevronIcon: Icon(
                                       Icons.chevron_left,
-                                      color:
-                                          Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
                                     ),
                                     rightChevronIcon: Icon(
                                       Icons.chevron_right,
-                                      color:
-                                          Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
                                     ),
                                   ),
 
-                                  selectedDayPredicate:
-                                      (day) {
-                                    return isSameDay(
-                                      _selectedDay,
-                                      day,
-                                    );
+                                  selectedDayPredicate: (day) {
+                                    return isSameDay(_selectedDay, day);
                                   },
 
                                   eventLoader: (day) {
-                                    final String dayKey =
-                                        _getDbKeyOf(day);
+                                    final String dayKey = _getDbKeyOf(day);
 
-                                    return entryDatesWithData
-                                            .contains(dayKey)
+                                    return entryDatesWithData.contains(dayKey)
                                         ? [true]
                                         : [];
                                   },
 
-                                  onDaySelected:
-                                      (
-                                    selectedDay,
-                                    focusedDay,
-                                  ) {
-                                    final String selectedKey =
-                                        _getDbKeyOf(
+                                  onDaySelected: (selectedDay, focusedDay) {
+                                    final String selectedKey = _getDbKeyOf(
                                       selectedDay,
                                     );
 
-                                    if (isSameDay(
-                                      selectedDay,
-                                      _selectedDay,
-                                    )) {
+                                    if (isSameDay(selectedDay, _selectedDay)) {
                                       return;
                                     }
 
                                     setState(() {
-                                      _selectedDay =
-                                          selectedDay;
+                                      _selectedDay = selectedDay;
 
-                                      _focusedDay =
-                                          focusedDay;
+                                      _focusedDay = focusedDay;
 
-                                      _selectedDayData =
-                                          DBHelper.getEntry(
+                                      _selectedDayData = DBHelper.getEntry(
                                         selectedKey,
                                         readOnly: true,
                                       );
                                     });
                                   },
 
-                                  calendarBuilders:
-                                      CalendarBuilders(
-                                    markerBuilder:
-                                        (
-                                      context,
-                                      day,
-                                      events,
-                                    ) {
+                                  calendarBuilders: CalendarBuilders(
+                                    markerBuilder: (context, day, events) {
                                       if (events.isEmpty) {
-                                        return const SizedBox
-                                            .shrink();
+                                        return const SizedBox.shrink();
                                       }
 
-                                      final String dayKey =
-                                          _getDbKeyOf(day);
+                                      final String dayKey = _getDbKeyOf(day);
 
-                                      final String
-                                          currentDayMood =
-                                          _dateMoods?[dayKey] ??
-                                              '';
+                                      final String currentDayMood =
+                                          _dateMoods?[dayKey] ?? '';
 
-                                      final Color
-                                          indicatorColor =
-                                          CustomTheme
-                                              .getMoodColor(
-                                        currentDayMood,
-                                      );
+                                      final Color indicatorColor =
+                                          CustomTheme.getMoodColor(
+                                            currentDayMood,
+                                            context,
+                                          );
 
                                       return Positioned(
                                         bottom: -1,
                                         child: Container(
                                           width: 24,
                                           height: 7,
-                                          decoration:
-                                              BoxDecoration(
-                                            color:
-                                                indicatorColor,
-                                            shape:
-                                                BoxShape.rectangle,
-                                            borderRadius:
-                                                BorderRadius
-                                                    .circular(
+                                          decoration: BoxDecoration(
+                                            color: indicatorColor,
+                                            shape: BoxShape.rectangle,
+                                            borderRadius: BorderRadius.circular(
                                               8,
                                             ),
                                           ),
@@ -432,10 +363,9 @@ class _TimelineState extends State<Timeline> {
 
                                 Divider(
                                   thickness: 1,
-                                  color:
-                                      Theme.of(context)
-                                          .colorScheme
-                                          .surfaceContainerHighest,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
                                 ),
 
                                 const SizedBox(height: 12),
@@ -452,25 +382,20 @@ class _TimelineState extends State<Timeline> {
                                       'Reflective',
                                     ])
                                       Row(
-                                        mainAxisSize:
-                                            MainAxisSize.min,
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Container(
                                             width: 16,
                                             height: 16,
-                                            decoration:
-                                                BoxDecoration(
-                                              color: CustomTheme
-                                                  .getMoodColor(
+                                            decoration: BoxDecoration(
+                                              color: CustomTheme.getMoodColor(
                                                 mood,
+                                                context,
                                               ),
-                                              shape:
-                                                  BoxShape.circle,
+                                              shape: BoxShape.circle,
                                             ),
                                           ),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
+                                          const SizedBox(width: 5),
                                           Text(mood),
                                         ],
                                       ),
@@ -479,7 +404,7 @@ class _TimelineState extends State<Timeline> {
                               ],
                             ),
                           )
-                        : const SizedBox(height: 0),
+                        : Container(height: 0),
                   ),
                 ],
               ),
@@ -488,155 +413,102 @@ class _TimelineState extends State<Timeline> {
 
           !isCalendarExpanded
               ? allEntries.isEmpty
-                  ? const SliverToBoxAdapter(
-                      child: Center(
-                        child: Padding(
-                          padding:
-                              EdgeInsets.only(top: 48),
-                          child: Text(
-                            'Add a diary to get started.',
+                    ? const SliverToBoxAdapter(
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 48),
+                            child: Text('Add a diary to get started.'),
                           ),
                         ),
-                      ),
-                    )
-                  : SliverPadding(
-                      padding:
-                          const EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
-                      sliver: SliverList(
-                        delegate:
-                            SliverChildBuilderDelegate(
-                          (context, index) {
-                            final entryItem =
-                                allEntries[index];
+                      )
+                    : SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final entryItem = allEntries[index];
 
-                            final String dateStr =
-                                entryItem['date'] ?? '';
+                            final String dateStr = entryItem['date'] ?? '';
 
                             final DateTime parsedDate =
-                                DateTime.tryParse(
-                                      dateStr,
-                                    ) ??
-                                    DateTime.now();
+                                DateTime.tryParse(dateStr) ?? DateTime.now();
 
-                            final String friendlyDate =
-                                DateFormat(
+                            final String friendlyDate = DateFormat(
                               'MMM d, yyyy',
                             ).format(parsedDate);
 
                             return TimelineCard(
-                              title:
-                                  entryItem['title'] ?? '',
-                              description:
-                                  entryItem['text_data'] ??
-                                      '',
-                              formattedDate:
-                                  friendlyDate,
-                              imagePath:
-                                  resolvedFirstImages[
-                                      dateStr],
-                              mood:
-                                  entryItem['mood'] ?? '',
+                              title: entryItem['title'] ?? '',
+                              description: entryItem['text_data'] ?? '',
+                              formattedDate: friendlyDate,
+                              imagePath: resolvedFirstImages[dateStr],
+                              mood: entryItem['mood'] ?? '',
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        DiaryView(
-                                      dateKey: dateStr,
-                                    ),
+                                        DiaryView(dateKey: dateStr),
                                   ),
-                                ).then(
-                                  (_) =>
-                                      _loadTimelineData(),
-                                );
+                                ).then((_) => _loadTimelineData());
                               },
                             );
-                          },
-                          childCount:
-                              allEntries.length,
+                          }, childCount: allEntries.length),
                         ),
-                      ),
-                    )
+                      )
               : SliverToBoxAdapter(
                   child: _selectedDayData == null
                       ? const SizedBox(height: 0)
                       : Padding(
-                          padding:
-                              const EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 16,
                           ),
                           child: TimelineCard(
-                            title:
-                                _selectedDayData!['title'] ??
-                                    '',
-                            mood:
-                                _selectedDayData!['mood'] ??
-                                    '',
-                            description:
-                                _selectedDayData![
-                                        'text_data'] ??
-                                    '',
-                            formattedDate:
-                                DateFormat(
+                            title: _selectedDayData!['title'] ?? '',
+                            mood: _selectedDayData!['mood'] ?? '',
+                            description: _selectedDayData!['text_data'] ?? '',
+                            formattedDate: DateFormat(
                               'MMM d, yyyy',
-                            ).format(
-                              DateTime.parse(
-                                _selectedDayData!['date'],
-                              ),
-                            ),
+                            ).format(DateTime.parse(_selectedDayData!['date'])),
                             imagePath:
-                                resolvedFirstImages[
-                                    _selectedDayData![
-                                        'date']],
+                                resolvedFirstImages[_selectedDayData!['date']],
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      DiaryView(
-                                    dateKey:
-                                        _selectedDayData![
-                                            'date'],
+                                  builder: (context) => DiaryView(
+                                    dateKey: _selectedDayData!['date'],
                                   ),
                                 ),
-                              ).then(
-                                (_) =>
-                                    _loadTimelineData(),
-                              );
+                              ).then((_) => _loadTimelineData());
                             },
                           ),
                         ),
                 ),
+          SliverToBoxAdapter(child: const SizedBox(height: 84)),
         ],
       ),
 
       floatingActionButton: isCalendarExpanded
           ? null
           : FloatingActionButton(
-              backgroundColor:
-                  Theme.of(context).colorScheme.primary,
-              foregroundColor:
-                  Theme.of(context).colorScheme.onPrimary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               enableFeedback: true,
               elevation: 2,
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => Entry(),
-                  ),
-                ).then(
-                  (_) => _loadTimelineData(),
-                );
+                  MaterialPageRoute(builder: (context) => Entry()),
+                ).then((_) => _loadTimelineData());
               },
               child: const Icon(Icons.edit),
             ),
 
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

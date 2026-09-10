@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
 class DBHelper {
@@ -92,5 +93,27 @@ class DBHelper {
     return keys
         .map((key) => Map<String, dynamic>.from(diaryBox.get(key)))
         .toList();
+  }
+
+  // Get date, mood and weather for every day in a month
+  // Usage : List<Map> monthData = DBHelper.getMonthData(2026, 8);
+  static List<Map> getMonthData(int year, int month) {
+    List<Map> monthData = [];
+
+    int days = DateUtils.getDaysInMonth(year, month);
+
+    for (int day = 1; day <= days; day++) {
+      String date = DateTime(year, month, day)
+          .toIso8601String()
+          .substring(0, 10);
+
+      Map? entry = readEntry(date);
+
+      monthData.add({
+        'entry': entry
+      });
+    }
+
+    return monthData;
   }
 }
