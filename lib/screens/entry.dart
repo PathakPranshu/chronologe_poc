@@ -321,7 +321,11 @@ class _EntryState extends ConsumerState<Entry> {
                     TextField(
                       controller: _titleController,
                       onChanged: (value) => _onTextChanged(),
-                      style: customFonts.title != null ? theme.textTheme.displayMedium!.merge(customFonts.title): theme.textTheme.displayMedium,
+                      style: customFonts.title != null
+                          ? theme.textTheme.displayMedium!.merge(
+                              customFonts.title,
+                            )
+                          : theme.textTheme.displayMedium,
                       maxLines: null,
                       decoration: InputDecoration(
                         hintText: "Add a title",
@@ -349,7 +353,11 @@ class _EntryState extends ConsumerState<Entry> {
                                 .withAlpha(100),
                             value: selectedMood,
                             underline: const SizedBox(),
-                            style: customFonts.body != null ? theme.textTheme.titleMedium!.merge(customFonts.body) : theme.textTheme.titleMedium,
+                            style: customFonts.body != null
+                                ? theme.textTheme.titleMedium!.merge(
+                                    customFonts.body,
+                                  )
+                                : theme.textTheme.titleMedium,
 
                             items: const [
                               DropdownMenuItem(
@@ -393,7 +401,9 @@ class _EntryState extends ConsumerState<Entry> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: _contentController,
-                      style: customFonts.body != null ? theme.textTheme.titleMedium!.merge(customFonts.body) : theme.textTheme.titleMedium,
+                      style: customFonts.body != null
+                          ? theme.textTheme.titleMedium!.merge(customFonts.body)
+                          : theme.textTheme.titleMedium,
                       onChanged: (value) => _onTextChanged(),
                       maxLines: null,
                       decoration: InputDecoration(
@@ -435,36 +445,47 @@ class _EntryState extends ConsumerState<Entry> {
                                     backgroundColor: theme.colorScheme.primary
                                         .withAlpha(240),
                                     radius: 16,
-                                    child: IconButton(
+                                    child: PopupMenuButton<String>(
                                       padding: EdgeInsets.zero,
                                       icon: Icon(
-                                        Icons.close,
-                                        size: 16,
-                                        color: theme
-                                            .colorScheme
-                                            .onPrimaryContainer,
+                                        Icons.more_vert,
+                                        color: theme.colorScheme.onPrimary,
                                       ),
-                                      onPressed: () async {
-                                        final String targetedFilename =
-                                            storedFilenames[index];
+                                      onSelected: (value) async {
+                                        if (value == 'delete') {
+                                          final String targetedFilename =
+                                              storedFilenames[index];
 
-                                        await DBHelper.deleteImage(
-                                          _dbkey,
-                                          targetedFilename,
-                                        );
+                                          await DBHelper.deleteImage(
+                                            _dbkey,
+                                            targetedFilename,
+                                          );
 
-                                        final File fileToDelete = File(
-                                          absoluteImagePath,
-                                        );
-                                        if (await fileToDelete.exists()) {
-                                          await fileToDelete.delete();
+                                          final File fileToDelete = File(
+                                            absoluteImagePath,
+                                          );
+                                          if (await fileToDelete.exists()) {
+                                            await fileToDelete.delete();
+                                          }
+
+                                          setState(() {
+                                            storedFilenames.removeAt(index);
+                                            resolvedImagePaths.removeAt(index);
+                                          });
                                         }
-
-                                        setState(() {
-                                          storedFilenames.removeAt(index);
-                                          resolvedImagePaths.removeAt(index);
-                                        });
                                       },
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem<String>(
+                                          value: 'delete',
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.delete_outline, color: theme.colorScheme.onSurface,),
+                                              SizedBox(width: 8),
+                                              Text('Delete'),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),

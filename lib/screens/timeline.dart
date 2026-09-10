@@ -5,6 +5,7 @@ import 'package:chronologe_poc/screens/diaryview.dart';
 import 'package:chronologe_poc/screens/entry.dart';
 import 'package:chronologe_poc/screens/info.dart';
 import 'package:chronologe_poc/screens/preferences.dart';
+import 'package:chronologe_poc/screens/search.dart';
 import 'package:chronologe_poc/screens/summary.dart';
 import 'package:chronologe_poc/theme.dart';
 import 'package:chronologe_poc/widgets.dart';
@@ -23,14 +24,15 @@ class Timeline extends StatefulWidget {
 
 class _TimelineState extends State<Timeline> {
   void _openSearch() {
-  showSearch(
-    context: context,
-    delegate: DiarySearchDelegate(
-      entries: allEntries,
-      imagePaths: resolvedFirstImages,
-    ),
-  );
-}
+    showSearch(
+      context: context,
+      delegate: DiarySearchDelegate(
+        entries: allEntries,
+        imagePaths: resolvedFirstImages,
+      ),
+    );
+  }
+
   bool isCalendarExpanded = false;
 
   DateTime _focusedDay = DateTime.now();
@@ -121,11 +123,6 @@ class _TimelineState extends State<Timeline> {
               title: const Text('Your Chronologe'),
               actions: [
                 IconButton(
-                  tooltip: 'Search',
-                  onPressed: _openSearch,
-                  icon: const Icon(Icons.search),
-              ),
-                IconButton(
                   tooltip: 'Weekly Summary',
                   onPressed: () {
                     Navigator.push(
@@ -144,7 +141,9 @@ class _TimelineState extends State<Timeline> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const Preferences()),
+                      MaterialPageRoute(
+                        builder: (context) => const Preferences(),
+                      ),
                     );
                   },
                   icon: Icon(
@@ -179,44 +178,78 @@ class _TimelineState extends State<Timeline> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      enableFeedback: true,
-                      minimumSize: Size.zero,
-                      foregroundColor: isCalendarExpanded
-                          ? Theme.of(context).colorScheme.onSecondary
-                          : Theme.of(context).colorScheme.onSecondaryContainer,
-                      backgroundColor: isCalendarExpanded
-                          ? Theme.of(context).colorScheme.secondary
-                          : Theme.of(context).colorScheme.secondaryContainer,
-                      iconColor: isCalendarExpanded
-                          ? Theme.of(context).colorScheme.onSecondary
-                          : Theme.of(context).colorScheme.onSecondaryContainer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          isCalendarExpanded ? 12 : 100,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          enableFeedback: true,
+                          minimumSize: Size.zero,
+                          foregroundColor: isCalendarExpanded
+                              ? Theme.of(context).colorScheme.onSecondary
+                              : Theme.of(context).colorScheme.onSecondaryContainer,
+                          backgroundColor: isCalendarExpanded
+                              ? Theme.of(context).colorScheme.secondary
+                              : Theme.of(context).colorScheme.secondaryContainer,
+                          iconColor: isCalendarExpanded
+                              ? Theme.of(context).colorScheme.onSecondary
+                              : Theme.of(context).colorScheme.onSecondaryContainer,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              isCalendarExpanded ? 12 : 100,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isCalendarExpanded = !isCalendarExpanded;
+                          });
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.calendar_month, size: 16.67),
+                            SizedBox(width: 4),
+                            Text('Dates'),
+                          ],
                         ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 12,
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          enableFeedback: true,
+                          minimumSize: Size.zero,
+                          foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                          iconColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100,),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                        ),
+                        onPressed: _openSearch,
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.search_rounded, size: 16.67),
+                            SizedBox(width: 4),
+                            Text('Search'),
+                          ],
+                        ),
                       ),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isCalendarExpanded = !isCalendarExpanded;
-                      });
-                    },
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(Icons.calendar_month, size: 16.67),
-                        SizedBox(width: 4),
-                        Text('Dates'),
-                      ],
-                    ),
+                    ],
                   ),
 
                   const SizedBox(height: 12),
@@ -525,109 +558,4 @@ class _TimelineState extends State<Timeline> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
-}class DiarySearchDelegate extends SearchDelegate {
-  final List<Map<String, dynamic>> entries;
-  final Map<String, String> imagePaths;
-
-  DiarySearchDelegate({
-    required this.entries,
-    required this.imagePaths,
-  });
-
-  @override
-  List<Widget>? buildActions(BuildContext context) {
-    return [
-      if (query.isNotEmpty)
-        IconButton(
-          tooltip: 'Clear',
-          icon: const Icon(Icons.clear),
-          onPressed: () {
-            query = '';
-          },
-        ),
-    ];
-  }
-
-  @override
-  Widget? buildLeading(BuildContext context) {
-    return IconButton(
-      tooltip: 'Back',
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    return _buildSearchResults(context);
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return _buildSearchResults(context);
-  }
-
-  Widget _buildSearchResults(BuildContext context) {
-    final searchQuery = query.trim().toLowerCase();
-
-    final results = searchQuery.isEmpty
-        ? <Map<String, dynamic>>[]
-        : entries.where((entry) {
-            final title = (entry['title'] ?? '').toString().toLowerCase();
-            final description =
-                (entry['text_data'] ?? '').toString().toLowerCase();
-            final mood = (entry['mood'] ?? '').toString().toLowerCase();
-
-            return title.contains(searchQuery) ||
-                description.contains(searchQuery) ||
-                mood.contains(searchQuery);
-          }).toList();
-
-    if (searchQuery.isEmpty) {
-      return const Center(
-        child: Text('Search your diary entries'),
-      );
-    }
-
-    if (results.isEmpty) {
-      return const Center(
-        child: Text('No entries found'),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(20),
-      itemCount: results.length,
-      itemBuilder: (context, index) {
-        final entry = results[index];
-
-        final String dbKey = entry['dbkey'].toString();
-        final String? imagePath = imagePaths[dbKey];
-
-        return TimelineCard(
-          title: (entry['title'] ?? '').toString(),
-          description: (entry['text_data'] ?? '').toString(),
-          formattedDate: DateFormat(
-            'MMM d, yyyy',
-          ).format(DateTime.parse(entry['date'].toString())),
-          imagePath: imagePath,
-          mood: (entry['mood'] ?? '').toString(),
-          onTap: () {
-            close(context, null);
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DiaryView(
-                  dateKey: dbKey,
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-} 
+}
