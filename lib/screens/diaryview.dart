@@ -28,7 +28,55 @@ class _DiaryViewState extends ConsumerState<DiaryView> {
 
   List<String> resolvedImagePaths = [];
   List<String> storedFilenames = [];
+  Future<void> _deleteImage(String imagePath) async {
+  final String fileName = p.basename(imagePath);
 
+  final bool? confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Delete photo?'),
+        content: const Text(
+          'Are you sure you want to delete this photo?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmed != true) {
+    return;
+  }
+
+  await DBHelper.deleteImage(_dbkey, fileName);
+
+  final File imageFile = File(imagePath);
+  if (await imageFile.exists()) {
+    await imageFile.delete();
+  }
+
+  if (!mounted) {
+    return;
+  }
+
+  setState(() {
+    resolvedImagePaths.remove(imagePath);
+    storedFilenames.remove(fileName);
+  });
+}
   Future<Directory> _getTargetDirectory() async {
     final Directory appDocDir = await getApplicationDocumentsDirectory();
     final String targetPath = p.join(
@@ -157,11 +205,44 @@ class _DiaryViewState extends ConsumerState<DiaryView> {
                       maxHeight: 200,
                       minHeight: 200,
                       alignment: Alignment.center,
-                      child: Image.file(
-                        File(imagePath),
-                        key: ValueKey(imagePath),
-                        fit: BoxFit.cover,
-                      ),
+                      child: Stack(
+  children: [
+    Positioned.fill(
+      child: Image.file(
+        File(imagePath),
+        key: ValueKey(imagePath),
+        fit: BoxFit.cover,
+      ),
+    ),
+    Positioned(
+      top: 8,
+      right: 8,
+      child: PopupMenuButton<String>(
+        icon: const Icon(
+          Icons.more_vert,
+          color: Colors.white,
+        ),
+        onSelected: (value) {
+          if (value == 'delete') {
+            _deleteImage(imagePath);
+          }
+        },
+        itemBuilder: (context) => [
+          const PopupMenuItem<String>(
+            value: 'delete',
+            child: Row(
+              children: [
+                Icon(Icons.delete_outline),
+                SizedBox(width: 8),
+                Text('Delete'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  ],
+),
                     );
                   }).toList(),
                 ),
