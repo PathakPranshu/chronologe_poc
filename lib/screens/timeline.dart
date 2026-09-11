@@ -42,7 +42,7 @@ class _TimelineState extends State<Timeline> {
   Map<String, String> resolvedFirstImages = {};
   Set<String> entryDatesWithData = {};
 
-  Map<String, dynamic>? _selectedDayData;
+  List<Map<dynamic, dynamic>>? _monthData = [];
   Map<String, String>? _dateMoods;
 
   Future<void> _loadTimelineData() async {
@@ -105,16 +105,19 @@ class _TimelineState extends State<Timeline> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           Theme(
-            data: Theme.of(context).copyWith(
-              textTheme: Theme.of(context).textTheme.copyWith(
-                headlineMedium: Theme.of(context).textTheme.displaySmall
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                titleLarge: Theme.of(context).textTheme.titleLarge
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+            data: theme.copyWith(
+              textTheme: theme.textTheme.copyWith(
+                headlineMedium: theme.textTheme.displaySmall?.copyWith(
+                  color: theme.colorScheme.onSurface,
+                ),
+                titleLarge: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
             ),
             child: SliverAppBar.large(
@@ -132,7 +135,7 @@ class _TimelineState extends State<Timeline> {
                   },
                   icon: Icon(
                     Icons.auto_awesome_rounded,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: theme.colorScheme.onSurfaceVariant,
                     size: 18,
                   ),
                 ),
@@ -148,7 +151,7 @@ class _TimelineState extends State<Timeline> {
                   },
                   icon: Icon(
                     Icons.tune,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: theme.colorScheme.onSurfaceVariant,
                     size: 18,
                   ),
                 ),
@@ -163,7 +166,7 @@ class _TimelineState extends State<Timeline> {
                   },
                   icon: Icon(
                     Icons.info_outline_rounded,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: theme.colorScheme.onSurfaceVariant,
                     size: 18,
                   ),
                 ),
@@ -188,14 +191,14 @@ class _TimelineState extends State<Timeline> {
                           enableFeedback: true,
                           minimumSize: Size.zero,
                           foregroundColor: isCalendarExpanded
-                              ? Theme.of(context).colorScheme.onSecondary
-                              : Theme.of(context).colorScheme.onSecondaryContainer,
+                              ? theme.colorScheme.onSecondary
+                              : theme.colorScheme.onSecondaryContainer,
                           backgroundColor: isCalendarExpanded
-                              ? Theme.of(context).colorScheme.secondary
-                              : Theme.of(context).colorScheme.secondaryContainer,
+                              ? theme.colorScheme.secondary
+                              : theme.colorScheme.secondaryContainer,
                           iconColor: isCalendarExpanded
-                              ? Theme.of(context).colorScheme.onSecondary
-                              : Theme.of(context).colorScheme.onSecondaryContainer,
+                              ? theme.colorScheme.onSecondary
+                              : theme.colorScheme.onSecondaryContainer,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                               isCalendarExpanded ? 12 : 100,
@@ -226,11 +229,12 @@ class _TimelineState extends State<Timeline> {
                         style: FilledButton.styleFrom(
                           enableFeedback: true,
                           minimumSize: Size.zero,
-                          foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                          iconColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                          foregroundColor:
+                              theme.colorScheme.onSecondaryContainer,
+                          backgroundColor: theme.colorScheme.secondaryContainer,
+                          iconColor: theme.colorScheme.onSecondaryContainer,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(100,),
+                            borderRadius: BorderRadius.circular(100),
                           ),
                           padding: const EdgeInsets.symmetric(
                             vertical: 6,
@@ -263,9 +267,7 @@ class _TimelineState extends State<Timeline> {
                         ? Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerLow,
+                              color: theme.colorScheme.surfaceContainerLow,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
@@ -286,30 +288,22 @@ class _TimelineState extends State<Timeline> {
                                     ),
                                     todayDecoration: BoxDecoration(
                                       border: Border.all(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
+                                        color: theme.colorScheme.primary,
                                       ),
                                       shape: BoxShape.circle,
                                     ),
                                     selectedDecoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary,
+                                      color: theme.colorScheme.primary,
                                       shape: BoxShape.circle,
                                     ),
-                                    selectedTextStyle: Theme.of(context)
+                                    selectedTextStyle: theme
                                         .textTheme
                                         .bodyLarge!
                                         .copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
+                                          color: theme.colorScheme.onPrimary,
                                         ),
                                     todayTextStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                   ),
 
@@ -326,22 +320,26 @@ class _TimelineState extends State<Timeline> {
                                     rightChevronPadding: EdgeInsets.zero,
                                     leftChevronIcon: Icon(
                                       Icons.chevron_left,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                     rightChevronIcon: Icon(
                                       Icons.chevron_right,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                   ),
 
                                   selectedDayPredicate: (day) {
                                     return isSameDay(_selectedDay, day);
                                   },
-
+                                  onPageChanged: (focusedDay) => {
+                                    setState(() {
+                                      _focusedDay = focusedDay;
+                                      _monthData = DBHelper.getMonthData(
+                                        focusedDay.year,
+                                        focusedDay.month,
+                                      );
+                                    }),
+                                  },
                                   eventLoader: (day) {
                                     final String dayKey = _getDbKeyOf(day);
 
@@ -363,12 +361,19 @@ class _TimelineState extends State<Timeline> {
                                       _selectedDay = selectedDay;
 
                                       _focusedDay = focusedDay;
-
-                                      _selectedDayData = DBHelper.getEntry(
-                                        selectedKey,
-                                        readOnly: true,
-                                      );
                                     });
+
+                                    if (entryDatesWithData.contains(
+                                      selectedKey,
+                                    )) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              DiaryView(dateKey: selectedKey),
+                                        ),
+                                      ).then((_) => _loadTimelineData());
+                                    }
                                   },
 
                                   calendarBuilders: CalendarBuilders(
@@ -410,9 +415,8 @@ class _TimelineState extends State<Timeline> {
 
                                 Divider(
                                   thickness: 1,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest,
+                                  color:
+                                      theme.colorScheme.surfaceContainerHighest,
                                 ),
 
                                 const SizedBox(height: 12),
@@ -506,32 +510,52 @@ class _TimelineState extends State<Timeline> {
                         ),
                       )
               : SliverToBoxAdapter(
-                  child: _selectedDayData == null
+                  child: _monthData!.isEmpty
                       ? const SizedBox(height: 0)
                       : Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 16,
+                            vertical: 20,
                           ),
-                          child: TimelineCard(
-                            title: _selectedDayData!['title'] ?? '',
-                            mood: _selectedDayData!['mood'] ?? '',
-                            description: _selectedDayData!['text_data'] ?? '',
-                            formattedDate: DateFormat(
-                              'MMM d, yyyy',
-                            ).format(DateTime.parse(_selectedDayData!['date'])),
-                            imagePath:
-                                resolvedFirstImages[_selectedDayData!['date']],
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DiaryView(
-                                    dateKey: _selectedDayData!['date'],
-                                  ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 12,
+                            children: [
+                              Text(
+                                'Entries in ${DateFormat('MMMM').format(_focusedDay)} ${_focusedDay.year}',
+                                style: theme.textTheme.titleSmall!.copyWith(
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ).then((_) => _loadTimelineData());
-                            },
+                              ),
+                              ListView.builder(
+                                padding: EdgeInsets.zero,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: _monthData!.length,
+                                itemBuilder: ((context, index) {
+                                  final entry = _monthData![index];
+
+                                  return TimelineCard(
+                                    title: entry['title'] ?? "",
+                                    description: entry['text_data'] ?? '',
+                                    formattedDate: entry['date'],
+                                    imagePath:
+                                        resolvedFirstImages[entry['date']],
+                                    mood: entry['mood'],
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              DiaryView(dateKey: entry['date']),
+                                        ),
+                                      ).then((_) => _loadTimelineData());
+                                    },
+                                  );
+                                }),
+                              ),
+                            ],
                           ),
                         ),
                 ),
@@ -542,8 +566,8 @@ class _TimelineState extends State<Timeline> {
       floatingActionButton: isCalendarExpanded
           ? null
           : FloatingActionButton(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
               enableFeedback: true,
               elevation: 2,
               onPressed: () {

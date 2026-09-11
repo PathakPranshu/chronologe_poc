@@ -1,16 +1,43 @@
 import 'package:chronologe_poc/screens/diaryview.dart';
 import 'package:chronologe_poc/widgets.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DiarySearchDelegate extends SearchDelegate {
   final List<Map<String, dynamic>> entries;
   final Map<String, String> imagePaths;
+  
 
   DiarySearchDelegate({
     required this.entries,
     required this.imagePaths,
   });
+
+  @override
+  String get searchFieldLabel => 'Search title, text, moods...';
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return theme.copyWith(
+      appBarTheme: theme.appBarTheme.copyWith(
+        backgroundColor: theme.colorScheme.surfaceContainer,
+        elevation: 0,
+        iconTheme: theme.iconTheme.copyWith(
+          color: theme.colorScheme.onSurface,
+        ),
+      ),
+      
+      textSelectionTheme: theme.textSelectionTheme.copyWith(
+        cursorColor: theme.colorScheme.primary,
+      ),
+      inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+        border: InputBorder.none,
+      ),
+    );
+  }
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -30,7 +57,7 @@ class DiarySearchDelegate extends SearchDelegate {
   Widget? buildLeading(BuildContext context) {
     return IconButton(
       tooltip: 'Back',
-      icon: const Icon(Icons.arrow_back),
+      icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface,),
       onPressed: () {
         close(context, null);
       },
@@ -46,6 +73,7 @@ class DiarySearchDelegate extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) {
     return _buildSearchResults(context);
   }
+  
 
   Widget _buildSearchResults(BuildContext context) {
     final searchQuery = query.trim().toLowerCase();
@@ -64,8 +92,20 @@ class DiarySearchDelegate extends SearchDelegate {
           }).toList();
 
     if (searchQuery.isEmpty) {
-      return const Center(
-        child: Text('Search your diary entries'),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+            spacing: 4,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            
+            children: [
+              Icon(Icons.search_rounded, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant,),
+              Text('Search your diary entries', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center,),
+            ],
+          ),
+        ),
       );
     }
 
@@ -81,7 +121,7 @@ class DiarySearchDelegate extends SearchDelegate {
       itemBuilder: (context, index) {
         final entry = results[index];
 
-        final String dbKey = entry['dbkey'].toString();
+        final String dbKey = entry['date'].toString();
         final String? imagePath = imagePaths[dbKey];
 
         return TimelineCard(

@@ -12,10 +12,7 @@ class DBHelper {
   }
 
   // Get existing entry or create a blank entry
-  static Map<String, dynamic>? getEntry(
-    String date, {
-    bool readOnly = false,
-  }) {
+  static Map<String, dynamic>? getEntry(String date, {bool readOnly = false}) {
     final rawData = diaryBox.get(date);
 
     if (rawData != null) {
@@ -48,10 +45,7 @@ class DBHelper {
   }
 
   // Change diary text
-  static Future<void> changeText(
-    String date,
-    String textData,
-  ) async {
+  static Future<void> changeText(String date, String textData) async {
     final Map<String, dynamic>? entry = getEntry(date);
 
     if (entry == null) {
@@ -64,10 +58,7 @@ class DBHelper {
   }
 
   // Change title
-  static Future<void> changeTitle(
-    String date,
-    String title,
-  ) async {
+  static Future<void> changeTitle(String date, String title) async {
     final Map<String, dynamic>? entry = getEntry(date);
 
     if (entry == null) {
@@ -80,10 +71,7 @@ class DBHelper {
   }
 
   // Change mood
-  static Future<void> changeMood(
-    String date,
-    String mood,
-  ) async {
+  static Future<void> changeMood(String date, String mood) async {
     final Map<String, dynamic>? entry = getEntry(date);
 
     if (entry == null) {
@@ -96,10 +84,7 @@ class DBHelper {
   }
 
   // Add image
-  static Future<void> addImage(
-    String date,
-    String imageUrl,
-  ) async {
+  static Future<void> addImage(String date, String imageUrl) async {
     final Map<String, dynamic>? entry = getEntry(date);
 
     if (entry == null) {
@@ -107,10 +92,7 @@ class DBHelper {
     }
 
     final List<String> imagesList =
-        (entry['images_loc'] as List?)
-                ?.cast<String>()
-                .toList() ??
-            <String>[];
+        (entry['images_loc'] as List?)?.cast<String>().toList() ?? <String>[];
 
     imagesList.add(imageUrl);
 
@@ -120,10 +102,7 @@ class DBHelper {
   }
 
   // Delete image
-  static Future<void> deleteImage(
-    String date,
-    String imageUrl,
-  ) async {
+  static Future<void> deleteImage(String date, String imageUrl) async {
     final Map<String, dynamic>? entry = readEntry(date);
 
     if (entry == null) {
@@ -131,10 +110,7 @@ class DBHelper {
     }
 
     final List<String> imagesList =
-        (entry['images_loc'] as List?)
-                ?.cast<String>()
-                .toList() ??
-            <String>[];
+        (entry['images_loc'] as List?)?.cast<String>().toList() ?? <String>[];
 
     imagesList.remove(imageUrl);
 
@@ -144,19 +120,13 @@ class DBHelper {
   }
 
   // Get all diary entries sorted newest to oldest
-  static List<Map<String, dynamic>>
-      getAllEntriesNewestFirst() {
-    final List<String> keys =
-        diaryBox.keys.cast<String>().toList();
+  static List<Map<String, dynamic>> getAllEntriesNewestFirst() {
+    final List<String> keys = diaryBox.keys.cast<String>().toList();
 
     keys.sort((a, b) => b.compareTo(a));
 
     return keys
-        .map(
-          (key) => Map<String, dynamic>.from(
-            diaryBox.get(key),
-          ),
-        )
+        .map((key) => Map<String, dynamic>.from(diaryBox.get(key)))
         .toList();
   }
 
@@ -168,15 +138,16 @@ class DBHelper {
     int days = DateUtils.getDaysInMonth(year, month);
 
     for (int day = 1; day <= days; day++) {
-      String date = DateTime(year, month, day)
-          .toIso8601String()
-          .substring(0, 10);
+      String date = DateTime(
+        year,
+        month,
+        day,
+      ).toIso8601String().substring(0, 10);
 
       Map? entry = readEntry(date);
-
-      monthData.add({
-        'entry': entry
-      });
+      if (entry != null) {
+        monthData.add(entry);
+      }
     }
 
     return monthData;
