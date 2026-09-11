@@ -329,7 +329,7 @@ Do not add any text before or after the JSON.
                           ),
 
                         // Show Gemini errors if something goes wrong.
-                        if (errorMessage != null)
+                        if (errorMessage != null) ...[
                           const SizedBox(height: 8,),
                           Text("Error!", style: theme.textTheme.titleSmall!.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -357,7 +357,7 @@ Do not add any text before or after the JSON.
                                 ],
                               ),
                             ),
-                          ),
+                          )],
 
                         // Show the generated Gemini summary.
                         if (generatedSummary != null)
