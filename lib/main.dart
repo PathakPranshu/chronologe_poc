@@ -4,6 +4,7 @@ import 'package:chronologe_poc/dbhelper.dart';
 import 'package:chronologe_poc/providers.dart';
 import 'package:chronologe_poc/samples.dart';
 import 'package:chronologe_poc/screens/preferences.dart';
+import 'package:chronologe_poc/screens/summaryview.dart';
 import 'package:chronologe_poc/screens/timeline.dart';
 import 'package:chronologe_poc/theme.dart';
 import 'package:flutter/material.dart';

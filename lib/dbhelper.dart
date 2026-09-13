@@ -3,12 +3,14 @@ import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
 class DBHelper {
   static late Box diaryBox;
+  static late Box summaryBox;
 
   // Start database
   static Future<void> init() async {
     await Hive.initFlutter();
 
     diaryBox = await Hive.openBox('diary');
+    summaryBox = await Hive.openBox('summaries');
   }
 
   // Get existing entry or create a blank entry
@@ -26,7 +28,7 @@ class DBHelper {
         'text_data': '',
         'images_data': [],
         'images_loc': [],
-        'mood': '',
+        'mood': 'Calm',
       };
     }
 
@@ -151,5 +153,93 @@ class DBHelper {
     }
 
     return monthData;
+  }
+
+  /* Summary Functions */
+
+  // Create or overwrite a summary
+  static Future<void> createSummary({
+    required String startingWeekDate,
+    required String title,
+    required String theme,
+    required List<dynamic> highlights,
+    required String summary,
+    required String overallMood,
+    List<String>? imageLoc,
+  }) async {
+    final Map<String, dynamic> summaryData = {
+      'startingWeekDate': startingWeekDate,
+      'title': title,
+      'theme': theme,
+      'highlights': highlights,
+      'summary': summary,
+      'overallMood': overallMood,
+      'imageLoc': imageLoc ?? <String>[],
+    };
+
+    await summaryBox.put(startingWeekDate, summaryData);
+  }
+
+  // Read a specific summary
+  static Map<String, dynamic>? readSummary(String startingWeekDate) {
+    final rawData = summaryBox.get(startingWeekDate);
+
+    if (rawData == null) {
+      return null;
+    }
+
+    return Map<String, dynamic>.from(rawData);
+  }
+
+  // Add an image to a summary
+  static Future<void> addSummaryImage(
+    String startingWeekDate,
+    String imageUrl,
+  ) async {
+    final Map<String, dynamic>? entry = readSummary(startingWeekDate);
+
+    if (entry == null) {
+      return;
+    }
+
+    final List<String> imagesList =
+        (entry['imageLoc'] as List?)?.cast<String>().toList() ?? <String>[];
+
+    imagesList.add(imageUrl);
+    entry['imageLoc'] = imagesList;
+
+    await summaryBox.put(startingWeekDate, entry);
+  }
+
+  // Delete an image from a summary
+  static Future<void> deleteSummaryImage(
+    String startingWeekDate,
+    String imageUrl,
+  ) async {
+    final Map<String, dynamic>? entry = readSummary(startingWeekDate);
+
+    if (entry == null) {
+      return;
+    }
+
+    final List<String> imagesList =
+        (entry['imageLoc'] as List?)?.cast<String>().toList() ?? <String>[];
+
+    imagesList.remove(imageUrl);
+    entry['imageLoc'] = imagesList;
+
+    await summaryBox.put(startingWeekDate, entry);
+  }
+
+  // Get all summaries sorted newest to oldest
+  static List<Map<String, dynamic>> getAllSummaries() {
+    final List<String> keys = summaryBox.keys.cast<String>().toList();
+
+    // Sort descending so the most recent week is first
+    keys.sort((a, b) => b.compareTo(a));
+
+    return keys
+        .map((key) => Map<String, dynamic>.from(summaryBox.get(key)))
+        .toList();
   }
 }

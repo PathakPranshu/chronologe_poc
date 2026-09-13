@@ -6,6 +6,7 @@ import 'package:chronologe_poc/screens/entry.dart';
 import 'package:chronologe_poc/screens/info.dart';
 import 'package:chronologe_poc/screens/preferences.dart';
 import 'package:chronologe_poc/screens/search.dart';
+import 'package:chronologe_poc/screens/summaries.dart';
 import 'package:chronologe_poc/screens/summary.dart';
 import 'package:chronologe_poc/theme.dart';
 import 'package:chronologe_poc/widgets.dart';
@@ -126,20 +127,6 @@ class _TimelineState extends State<Timeline> {
               title: const Text('Your Chronologe'),
               actions: [
                 IconButton(
-                  tooltip: 'Weekly Summary',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const Summary()),
-                    );
-                  },
-                  icon: Icon(
-                    Icons.auto_awesome_rounded,
-                    color: theme.colorScheme.onSurfaceVariant,
-                    size: 18,
-                  ),
-                ),
-                IconButton(
                   tooltip: 'Preferences',
                   onPressed: () {
                     Navigator.push(
@@ -250,6 +237,41 @@ class _TimelineState extends State<Timeline> {
                             Icon(Icons.search_rounded, size: 16.67),
                             SizedBox(width: 4),
                             Text('Search'),
+                          ],
+                        ),
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          enableFeedback: true,
+                          minimumSize: Size.zero,
+                          foregroundColor:
+                              theme.colorScheme.onSecondaryContainer,
+                          backgroundColor: theme.colorScheme.secondaryContainer,
+                          iconColor: theme.colorScheme.onSecondaryContainer,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SummariesScreen(),
+                            ),
+                          );
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.summarize_rounded, size: 16.67),
+                            SizedBox(width: 4),
+                            Text('Summaries'),
                           ],
                         ),
                       ),

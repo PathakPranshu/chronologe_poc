@@ -33,21 +33,25 @@ class _InfoState extends State<Info> {
                 children: [
                   const SizedBox(height: 16),
                   Text(
-                    "ChronoLoge PoC",
+                    "ChronoLoge PoC v1.1.0-beta",
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 16),
                   Text.rich(
                     TextSpan(
-                      text: "This app is an MVP(Minimal Viable Product)/PoC(Proof of Concept) for Chronologe (The Digital Diary application). This app tests basic main functionalities of a Diary application and provide following features: ",
+                      text: "This app is an extended PoC for the main ChronoLoge app. The updated version (v1.1.0-beta) is built over the basic PoC(v0.1.0-alpha), and provide bug fixes, some improvements and optimization, and following additional features over the basic app: ",
                       style: Theme.of(context).textTheme.bodyLarge,
                       children: <TextSpan>[
-                        TextSpan(text: "\n\t \u2022 Basic Diary creation capability (Adding title and contents for a day)"),
-                        TextSpan(text: "\n\t \u2022 Upload and manage 'Photos' for the day"),
-                        TextSpan(text: "\n\t \u2022 View and edit diary entries (including photos)"),
-                        TextSpan(text: "\n\t \u2022 Calendar view for finding entries of specific day"),
-                        TextSpan(text: "\n\t \u2022 Autosaving data capability"),
-                        TextSpan(text: "\n\nThis app also explores various challenges and concepts, like setting up and interacting with Database, real-time data storage and modification in the app's internal storage(for photos), setting up calendar view for entries retrieval."),
+                        TextSpan(text: "\n\t \u2022 Searching through the entries (e.g, title, content, moods)"),
+                        TextSpan(text: "\n\t \u2022 Create Weekly Summaries (AI Generated)"),
+                        TextSpan(text: "\n\t \u2022 Preferences settings (Theme, and Fonts customization)"),
+                        TextSpan(text: "\n\t \u2022 Calendar View shows month's data"),
+                        TextSpan(text: "\n\nImprovements and optimization: "),
+                        TextSpan(text: "\n \u2022 Menu for photo deletion (prevent accidental clicks)"),
+                        TextSpan(text: "\n \u2022 Storage Optimizations"),
+                        TextSpan(text: "\n \u2022 Improved and optimized fullscreen image previewer"),
+                        TextSpan(text: "\n \u2022 CarouselView image resizing fixed"),
+                        TextSpan(text: "\n \u2022 Color Schema correction"),
                         TextSpan(text: "\n\nThankyou for testing the App!"),
                       ],
                     ),
@@ -59,7 +63,7 @@ class _InfoState extends State<Info> {
                   ),
                   const SizedBox(height: 12,),
                   Text(
-                    "team devlabs_",
+                    "devlabs_",
                     style: GoogleFonts.instrumentSerif(
                       color: Theme.of(context).colorScheme.primary,
                       fontSize: Theme.of(context).textTheme.headlineMedium!.fontSize,
@@ -76,7 +80,7 @@ class _InfoState extends State<Info> {
                   ),
                   const SizedBox(height: 8,),
                   Text(
-                    "______ JJSHH \u2022 2026 ______",
+                    "\u2022JJSHH \u2022 2026\u2022 v1.1.0 \u2022 ChronoLoge PoC",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.instrumentSerif(
                       color: Theme.of(context).colorScheme.primary,

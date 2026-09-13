@@ -47,5 +47,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
-lib/api_key.dart
-lib/gemini_test.dart
+
+# Sensitive environment files
+.env
+lib/env/env.g.dart

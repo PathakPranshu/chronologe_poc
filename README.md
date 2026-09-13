@@ -1,20 +1,21 @@
-# ChronoLoge PoC
+# ChronoLoge PoC v1.1.0-beta
+
+This app is an extended PoC for the main ChronoLoge app. The updated version (v1.1.0-beta) is built over the basic PoC(v0.1.0-alpha), and provide bug fixes, some improvements and optimization, and following additional features over the basic app:
+
+* Searching through the entries (e.g, title, content, moods)
+* Create Weekly Summaries (AI Generated)
+* Preferences settings (Theme, and Fonts customization)
+* Calendar View shows month's data
 
 
 
-This app is an MVP(Minimal Viable Product)/PoC(Proof of Concept) for Chronologe (The Digital Diary applicatiion). This app tests basic main functionalities of a Diary applicaition and provide following features: 
+Improvements and optimization:
 
-* Basic Diary creation capability (Adding title and contents for a day)
-* Upload and manage 'Photos' for the day
-* View and edit diary entries (including photos)
-* Calendar view for finding entries of specific day
-* Autosaving data capability
-
-
-
-This app also explores various challenges and concepts, like setting up and interacting with Database, real-time data storage and modification in the app's internal storage(for photos), setting up calendar view for entries retrieval.
-
-
+* Menu for photo deletion (prevent accidental clicks)
+* Storage Optimizations
+* Improved and optimized fullscreen image previewer
+* CarouselView image resizing fixed
+* Color Schema correction
 
 
 
@@ -22,11 +23,11 @@ Thankyou for testing the App!
 
 
 
-##### Designed by:
+### Designed by:
 
 
 
-### team devlabs\_
+#### team devlabs\_
 
 
 
@@ -38,4 +39,4 @@ Thankyou for testing the App!
 
 
 
-\_\_\_\_\_\_JJSHH . 2026 \_\_\_\_\_\_
+. JJSHH . 2026 . v1.1.0 . ChronoLoge PoC
