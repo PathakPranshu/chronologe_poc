@@ -160,6 +160,7 @@ class _DiaryViewState extends ConsumerState<DiaryView> {
                         File(imagePath),
                         key: ValueKey(imagePath),
                         fit: BoxFit.cover,
+                        cacheWidth: 600,
                       ),
                     );
                   }).toList(),

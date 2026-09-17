@@ -63,8 +63,8 @@ class _ImagePreviewState extends State<ImagePreview> {
                   decoration: BoxDecoration(
                     boxShadow: [
                       BoxShadow(
-                        color: theme.colorScheme.shadow.withAlpha(220),
-                        offset: Offset(0, -80),
+                        color: theme.colorScheme.shadow.withAlpha(120),
+                        offset: Offset(0, -75),
                         blurRadius: 20,
                         spreadRadius: 50,
                       ),

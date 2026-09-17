@@ -29,7 +29,7 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
 
   List<String> resolvedImagePaths = [];
   List<String> storedFilenames = [];
-  
+
   // Holds images selected but not yet saved
   List<XFile> unsavedImages = [];
 
@@ -69,10 +69,10 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
   void initState() {
     super.initState();
     _dbkey = widget.startingWeekDate;
-    
+
     DateTime start = DateTime.parse(_dbkey);
     DateTime end = start.add(const Duration(days: 6));
-    
+
     String formattedStart = DateFormat('MMM d').format(start);
     String formattedEnd = DateFormat('MMM d, y').format(end);
     _dateRange = "$formattedStart - $formattedEnd";
@@ -100,6 +100,7 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
           unsavedImages.addAll(images);
         });
       }
+      await _saveImages();
     } on Exception catch (e) {
       debugPrint("Error picking images: $e");
     }
@@ -108,6 +109,7 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
   Future<void> _saveImages() async {
     if (unsavedImages.isNotEmpty) {
       final Directory targetDir = await _getTargetDirectory();
+      final Directory tempDir = await getTemporaryDirectory();
       if (!await targetDir.exists()) {
         await targetDir.create(recursive: true);
       }
@@ -118,7 +120,8 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
 
       for (var image in unsavedImages) {
         final File tempFile = File(image.path);
-        final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+        final String timestamp = DateTime.now().millisecondsSinceEpoch
+            .toString();
         final String extension = p.extension(image.path);
         final String uniqueName = '${timestamp}_$counter$extension';
         counter++;
@@ -131,10 +134,6 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
           isCopied = true;
 
           await DBHelper.addSummaryImage(_dbkey, uniqueName);
-
-          if (await tempFile.exists()) {
-            await tempFile.delete();
-          }
 
           newFilenames.add(uniqueName);
           newResolvedPaths.add(permanentPath);
@@ -149,13 +148,33 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
         }
       }
 
+      // CLEANING: Delete the images from temporary storage (cache)
+      if (tempDir.existsSync()) {
+        tempDir.listSync(recursive: true).forEach((
+          FileSystemEntity entity,
+        ) async {
+          if (entity is File &&
+              (entity.path.endsWith('jpg') ||
+                  entity.path.endsWith('jpeg') ||
+                  entity.path.endsWith('png') ||
+                  entity.path.endsWith('heic') ||
+                  entity.path.endsWith('webp'))) {
+            DateTime now = DateTime.now();
+            DateTime lastModified = await entity.lastModified();
+            if (now.difference(lastModified) < Duration(minutes: 5)) {
+              await entity.delete();
+            }
+          }
+        });
+      }
+
       setState(() {
         storedFilenames.addAll(newFilenames);
         resolvedImagePaths.addAll(newResolvedPaths);
         unsavedImages.clear();
       });
     }
-    
+
     // Always exit edit mode when saving, even if no new images were added
     setState(() {
       isEditing = false;
@@ -175,7 +194,8 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
     }
 
     // Total images for the GridView (saved + unsaved)
-    final int totalEditImages = resolvedImagePaths.length + unsavedImages.length;
+    final int totalEditImages =
+        resolvedImagePaths.length + unsavedImages.length;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -227,7 +247,7 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: IconButton(
                     style: IconButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primaryFixed
+                      backgroundColor: theme.colorScheme.primaryFixed,
                     ),
                     color: theme.colorScheme.primaryFixed,
                     tooltip: 'Edit Photos',
@@ -245,7 +265,7 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                 ),
             ],
           ),
-          
+
           // Text Content Section
           SliverToBoxAdapter(
             child: Padding(
@@ -259,7 +279,9 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                   Text(
                     summaryData!['title'] ?? '',
                     style: customFonts.title != null
-                        ? theme.textTheme.displayMedium!.merge(customFonts.title)
+                        ? theme.textTheme.displayMedium!.merge(
+                            customFonts.title,
+                          )
                         : theme.textTheme.displayMedium,
                   ),
                   const SizedBox(height: 8),
@@ -276,10 +298,12 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                   // Theme in italic
                   Text(
                     "Theme: ${summaryData!['theme']}",
-                    style: CustomTheme.toRobotoItalic(theme.textTheme.titleLarge),
+                    style: CustomTheme.toRobotoItalic(
+                      theme.textTheme.titleLarge,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Mood Chip
                   Align(
                     alignment: Alignment.centerLeft,
@@ -299,13 +323,15 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                       child: Text(
                         "Overall: ${summaryData!['overallMood']}",
                         style: customFonts.body != null
-                            ? theme.textTheme.titleMedium!.merge(customFonts.body)
+                            ? theme.textTheme.titleMedium!.merge(
+                                customFonts.body,
+                              )
                             : theme.textTheme.titleMedium,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Summary Text
                   Text(
                     summaryData!['summary'] ?? '',
@@ -314,7 +340,7 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                         : theme.textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 24),
-                  
+
                   if ((summaryData!['highlights'] as List).isNotEmpty) ...[
                     Text(
                       "Highlights",
@@ -326,15 +352,19 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: (summaryData!['highlights'] as List)
-                          .map((highlight) => Padding(
-                                padding: const EdgeInsets.only(bottom: 6.0),
-                                child: Text(
-                                  "• ${highlight.toString()}",
-                                  style: customFonts.body != null
-                                      ? theme.textTheme.bodyLarge!.merge(customFonts.body)
-                                      : theme.textTheme.bodyLarge,
-                                ),
-                              ))
+                          .map(
+                            (highlight) => Padding(
+                              padding: const EdgeInsets.only(bottom: 6.0),
+                              child: Text(
+                                "• ${highlight.toString()}",
+                                style: customFonts.body != null
+                                    ? theme.textTheme.bodyLarge!.merge(
+                                        customFonts.body,
+                                      )
+                                    : theme.textTheme.bodyLarge,
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                     const SizedBox(height: 24),
@@ -343,7 +373,7 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
               ),
             ),
           ),
-          
+
           if (isEditing && totalEditImages > 0)
             SliverToBoxAdapter(
               child: Padding(
@@ -359,9 +389,9 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                   ),
                   itemBuilder: (context, index) {
                     final bool isSavedImage = index < resolvedImagePaths.length;
-                    
-                    final String imagePath = isSavedImage 
-                        ? resolvedImagePaths[index] 
+
+                    final String imagePath = isSavedImage
+                        ? resolvedImagePaths[index]
                         : unsavedImages[index - resolvedImagePaths.length].path;
 
                     return ClipRRect(
@@ -379,7 +409,8 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                             top: 4,
                             right: 4,
                             child: CircleAvatar(
-                              backgroundColor: theme.colorScheme.primary.withAlpha(240),
+                              backgroundColor: theme.colorScheme.primary
+                                  .withAlpha(240),
                               radius: 16,
                               child: PopupMenuButton<String>(
                                 padding: EdgeInsets.zero,
@@ -392,9 +423,13 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                                   if (value == 'delete') {
                                     if (isSavedImage) {
                                       // 1. Delete from DB & File System
-                                      final String targetedFilename = storedFilenames[index];
-                                      await DBHelper.deleteSummaryImage(_dbkey, targetedFilename);
-                                      
+                                      final String targetedFilename =
+                                          storedFilenames[index];
+                                      await DBHelper.deleteSummaryImage(
+                                        _dbkey,
+                                        targetedFilename,
+                                      );
+
                                       final File fileToDelete = File(imagePath);
                                       if (await fileToDelete.exists()) {
                                         await fileToDelete.delete();
@@ -407,7 +442,9 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                                     } else {
                                       // Delete unsaved image
                                       setState(() {
-                                        unsavedImages.removeAt(index - resolvedImagePaths.length);
+                                        unsavedImages.removeAt(
+                                          index - resolvedImagePaths.length,
+                                        );
                                       });
                                     }
                                   }
@@ -417,7 +454,10 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                                     value: 'delete',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.delete_outline, color: theme.colorScheme.onSurface),
+                                        Icon(
+                                          Icons.delete_outline,
+                                          color: theme.colorScheme.onSurface,
+                                        ),
                                         const SizedBox(width: 8),
                                         const Text('Delete'),
                                       ],
@@ -472,17 +512,18 @@ class _SummaryViewState extends ConsumerState<SummaryView> {
                         File(imagePath),
                         key: ValueKey(imagePath),
                         fit: BoxFit.cover,
+                        cacheWidth: 600,
                       ),
                     );
                   }).toList(),
                 ),
               ),
             ),
-            
+
           const SliverToBoxAdapter(child: SizedBox(height: 84)),
         ],
       ),
-      
+
       floatingActionButton: isEditing
           ? FloatingActionButton.extended(
               onPressed: _pickImages,

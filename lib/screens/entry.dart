@@ -34,6 +34,7 @@ class _EntryState extends ConsumerState<Entry> {
   String selectedMood = '';
 
   final ImagePicker _picker = ImagePicker();
+  bool processingImage = false;
 
   List<String> resolvedImagePaths = [];
 
@@ -110,13 +111,22 @@ class _EntryState extends ConsumerState<Entry> {
 
   Future<void> _pickImages() async {
     try {
+      setState(() {
+        processingImage = true;
+      });
+
       List<XFile> images = await _picker.pickMultiImage(
         maxWidth: 1920,
         imageQuality: 90,
       );
-      if (images.isEmpty) return;
+      if (images.isEmpty){
+        return setState(() {
+          processingImage = false;
+        });
+      }
 
       final Directory targetDir = await _getTargetDirectory();
+      final Directory tempDir = await getTemporaryDirectory();
       // Ensure the entries/images/{date} directories exist
       if (!await targetDir.exists()) {
         await targetDir.create(recursive: true);
@@ -144,11 +154,6 @@ class _EntryState extends ConsumerState<Entry> {
 
           await DBHelper.addImage(_dbkey, uniqueName);
 
-          // CLEANING: Delete the image from temporary storage if saved to the DB
-          if (await tempFile.exists()) {
-            await tempFile.delete();
-          }
-
           newFilenames.add(uniqueName);
           newResolvedPaths.add(permanentPath);
         } on Exception catch (imageError) {
@@ -163,12 +168,37 @@ class _EntryState extends ConsumerState<Entry> {
           }
         }
       }
+
       setState(() {
+        processingImage = false;
         storedFilenames.addAll(newFilenames);
         resolvedImagePaths.addAll(newResolvedPaths);
       });
+
+      // CLEANING: Delete the images from temporary storage (cache)
+      if (tempDir.existsSync()) {
+        tempDir.listSync(recursive: true).forEach((
+          FileSystemEntity entity,
+        ) async {
+          if (entity is File &&
+              (entity.path.endsWith('jpg') ||
+                  entity.path.endsWith('jpeg') ||
+                  entity.path.endsWith('png') ||
+                  entity.path.endsWith('heic') ||
+                  entity.path.endsWith('webp'))) {
+            DateTime now = DateTime.now();
+            DateTime lastModified = await entity.lastModified();
+            if (now.difference(lastModified) < Duration(minutes: 5)) {
+              await entity.delete();
+            }
+          }
+        });
+      }
     } on Exception catch (e) {
       debugPrint("Error picking images: $e");
+      setState(() {
+        processingImage = false;
+      });
     }
   }
 
@@ -435,7 +465,7 @@ class _EntryState extends ConsumerState<Entry> {
                                 Image.file(
                                   File(absoluteImagePath),
                                   fit: BoxFit.cover,
-                                  cacheWidth: 300,
+                                  cacheWidth: 250,
                                 ),
                                 // Quick Delete button on corner overlay
                                 Positioned(
@@ -479,7 +509,11 @@ class _EntryState extends ConsumerState<Entry> {
                                           value: 'delete',
                                           child: Row(
                                             children: [
-                                              Icon(Icons.delete_outline, color: theme.colorScheme.onSurface,),
+                                              Icon(
+                                                Icons.delete_outline,
+                                                color:
+                                                    theme.colorScheme.onSurface,
+                                              ),
                                               SizedBox(width: 8),
                                               Text('Delete'),
                                             ],
@@ -493,6 +527,26 @@ class _EntryState extends ConsumerState<Entry> {
                             ),
                           );
                         },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (processingImage == true) ...[
+                      const SizedBox(height: 28),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 8,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: theme.colorScheme.primary,
+                              strokeWidth: 3,
+                            ),
+                          ),
+                          Text("Processing images..."),
+                        ],
                       ),
                       const SizedBox(height: 16),
                     ],

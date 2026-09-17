@@ -58,7 +58,7 @@ class TimelineCard extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: imagePath != null
-                            ? Image.file(File(imagePath!), fit: BoxFit.cover)
+                            ? Image.file(File(imagePath!), fit: BoxFit.cover, cacheWidth: 300,)
                             : Center(
                                 child: Icon(
                                   Icons.menu_book_outlined,

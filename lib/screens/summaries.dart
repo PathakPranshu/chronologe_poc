@@ -157,7 +157,7 @@ class _SummariesScreenState extends State<SummariesScreen> {
                                               child: ClipRRect(
                                                 borderRadius: BorderRadius.circular(12),
                                                 child: imagePath != null
-                                                    ? Image.file(File(imagePath), fit: BoxFit.cover)
+                                                    ? Image.file(File(imagePath), fit: BoxFit.cover, cacheWidth: 300,)
                                                     : Center(
                                                         child: Icon(
                                                           Icons.auto_awesome_rounded,
