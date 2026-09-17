@@ -55,6 +55,10 @@ class _DiaryViewState extends ConsumerState<DiaryView> {
       setState(() {
         resolvedImagePaths = paths;
       });
+    } else {
+      setState(() {
+        resolvedImagePaths = [];
+      });
     }
   }
 
